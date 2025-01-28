@@ -21,7 +21,10 @@ SECRET_KEY = "django-insecure-%7=()&6sxvzdq68n)q^8n)g6#kw8p=45v)(hp^t%@*e4ty=##u
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    'acheiunb.herokuapp.com',
+    'acheiunb-1ff1f697079a.herokuapp.com',
+]
 AUTH_USER_MODEL = "auth.User"
 MEDIA_URL = "/media/"  # Prefixo da URL para os arquivos
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")  # Diretório onde os arquivos serão salvos
@@ -64,6 +67,11 @@ MIDDLEWARE = [
 
 AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://acheiunb.herokuapp.com',
+    'https://acheiunb-1ff1f697079a.herokuapp.com',  # Adicione outros subdomínios se necessário
+]
 
 ROOT_URLCONF = "AcheiUnB.urls"
 
