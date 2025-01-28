@@ -121,7 +121,6 @@ SOCIALACCOUNT_PROVIDERS = {
         },
     }
 }
-MICROSOFT_REDIRECT_URI = "http://localhost:8000/accounts/microsoft/login/callback/"
 # Permitir apenas usuários do tenant da UnB
 SOCIALACCOUNT_QUERY_EMAIL = True
 SOCIALACCOUNT_PROVIDERS["microsoft"]["AUTH_PARAMS"] = {
