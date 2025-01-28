@@ -1,0 +1,4 @@
+build:
+  languages: python
+  script:
+    - pip install -r API/requirements.txt
