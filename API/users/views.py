@@ -36,7 +36,7 @@ CLIENT_ID = os.getenv("MICROSOFT_CLIENT_ID")
 CLIENT_SECRET = os.getenv("MICROSOFT_CLIENT_SECRET")
 AUTHORITY = os.getenv("AUTHORITY")
 REDIRECT_URI = os.getenv("REDIRECT_URI")
-SCOPES = ["User.Read", "openid", "profile", "email"]
+SCOPES = ["User.Read"]
 logger = logging.getLogger(__name__)
 User = get_user_model()
 
