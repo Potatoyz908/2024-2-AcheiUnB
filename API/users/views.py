@@ -313,7 +313,7 @@ def save_or_update_user(user_data, access_token=None):
         )
         return user, created
     except Exception as e:
-        raise Exception(f"Erro ao salvar ou atualizar o usuário: {e}")
+        raise Exception(f"Erro ao salvar ou atualizar o usuário(save or update): {e}")
 
 
 
@@ -371,7 +371,7 @@ def microsoft_callback(request):
                 logger.info(f"Usuário {'criado' if created else 'atualizado'}: {user}")
             except Exception as e:
                 logger.error(f"Erro ao salvar ou atualizar o usuário: {e}")
-                return JsonResponse({"error": "Erro ao salvar ou atualizar o usuário."}, status=500)
+                return JsonResponse({"error": "Erro ao salvar ou atualizar o usuário. (microsoftcallback)"}, status=500)
 
             # Autenticar o usuário
             try:
