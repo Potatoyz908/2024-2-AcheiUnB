@@ -293,48 +293,28 @@ def save_or_update_user(user_data, access_token=None):
     Salva ou atualiza os dados do usuário no banco de dados.
     """
     try:
-        # Validar user_data
-        if not user_data.get("userPrincipalName"):
-            raise ValueError("O campo 'userPrincipalName' é obrigatório.")
-
-        email = user_data["userPrincipalName"]
-        first_name = user_data.get("givenName", "")
-        last_name = user_data.get("surname", "")
-        username = email.split("@")[0]
-
-        with transaction.atomic():
-            # Criar ou atualizar o usuário
-            user, created = User.objects.update_or_create(
-                email=email,
-                defaults={
-                    "username": username,
-                    "first_name": first_name,
-                    "last_name": last_name,
-                    "last_login": datetime.now(),
-                    "is_superuser": False,
-                    "is_staff": False,
-                    "is_active": True,
-                    "date_joined": datetime.now(),
-                },
-            )
-            
-            # Definir a senha corretamente
-            if created:
-                user.set_password("defaultpassword")
-                user.save()
-
-            # Obter e salvar foto do usuário
-            photo_url = get_and_save_user_photo(access_token, user.id)
-            
-            # Atualizar ou criar o perfil
-            profile, _ = UserProfile.objects.update_or_create(
-                user=user, defaults={"profile_picture": photo_url}
-            )
-
-            return user, created
-
+        user, created = User.objects.update_or_create(
+            email=user_data.get("userPrincipalName"),
+            defaults={
+                "username": user_data.get("userPrincipalName").split("@")[0],
+                "first_name": user_data.get("givenName", ""),
+                "last_name": user_data.get("surname", ""),
+                "password": "defaultpassword",
+                "last_login": datetime.now(),
+                "is_superuser": False,
+                "is_staff": False,
+                "is_active": True,
+                "date_joined": datetime.now(),
+            },
+        )
+        photo_url = get_and_save_user_photo(access_token, user.id)
+        profile, _ = UserProfile.objects.update_or_create(
+            user=user, defaults={"profile_picture": photo_url}
+        )
+        return user, created
     except Exception as e:
-        raise Exception(f"Erro ao salvar ou atualizar o usuário (save_or_update): {e}")
+        raise Exception(f"Erro ao salvar ou atualizar o usuário: {e}")
+
 
 
 def microsoft_login(request):
@@ -388,7 +368,13 @@ def microsoft_callback(request):
             # Salvar ou atualizar o usuário no banco de dados
             try:
                 user, created = save_or_update_user(user_data=user_data, access_token=access_token)
-                logger.info(f"Usuário {'criado' if created else 'atualizado'}: 
+                logger.info(f"Usuário {'criado' if created else 'atualizado'}: {user}")
+            except Exception as e:
+                logger.error(f"Erro ao salvar ou atualizar o usuário: {e}")
+                return JsonResponse({"error": "Erro ao salvar ou atualizar o usuário."}, status=500)
+
+            # Autenticar o usuário
+            try:
                 login(request, user)
                 logger.info(f"Usuário autenticado: {user}")
             except Exception as e:
