@@ -293,25 +293,12 @@ def save_or_update_user(user_data, access_token=None):
     Salva ou atualiza os dados do usuário no banco de dados.
     """
     try:
-        logger.info(f"Recebendo dados do usuário: {user_data}")
-        logger.info(f"Token de acesso recebido: {access_token}")
-
-        email = user_data.get("userPrincipalName")
-        if not email:
-            raise Exception("userPrincipalName não encontrado nos dados do usuário.")
-
-        username = email.split("@")[0]
-        first_name = user_data.get("givenName", "")
-        last_name = user_data.get("surname", "")
-
-        logger.info(f"Preparando para salvar usuário: {email}, {username}, {first_name}, {last_name}")
-
         user, created = User.objects.update_or_create(
-            email=email,
+            email=user_data.get("userPrincipalName"),
             defaults={
-                "username": username,
-                "first_name": first_name,
-                "last_name": last_name,
+                "username": user_data.get("userPrincipalName").split("@")[0],
+                "first_name": user_data.get("givenName", ""),
+                "last_name": user_data.get("surname", ""),
                 "password": "defaultpassword",
                 "last_login": datetime.now(),
                 "is_superuser": False,
@@ -320,21 +307,13 @@ def save_or_update_user(user_data, access_token=None):
                 "date_joined": datetime.now(),
             },
         )
-        logger.info(f"Usuário {'criado' if created else 'atualizado'}: {user}")
-
-        # Salvar foto do perfil
         photo_url = get_and_save_user_photo(access_token, user.id)
-        logger.info(f"Foto do usuário salva em: {photo_url}")
-
         profile, _ = UserProfile.objects.update_or_create(
             user=user, defaults={"profile_picture": photo_url}
         )
-        logger.info(f"Perfil atualizado para o usuário: {user}")
         return user, created
     except Exception as e:
-        logger.error(f"Erro ao salvar ou atualizar o usuário: {e}")
         raise Exception(f"Erro ao salvar ou atualizar o usuário: {e}")
-
 
 
 
