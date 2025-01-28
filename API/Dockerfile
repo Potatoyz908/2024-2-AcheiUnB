@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
     libpq-dev && apt-get clean
 
 # Copia os arquivos de dependência
-COPY API/requirements.txt /app/
+COPY requirements.txt /app/
 
 # Atualiza o pip antes de instalar os requisitos
 RUN python -m pip install --upgrade pip
