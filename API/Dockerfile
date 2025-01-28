@@ -6,21 +6,22 @@ WORKDIR /app
 
 # Instale dependências do sistema
 RUN apt-get update && apt-get install -y \
-    libpq-dev \
-    && apt-get clean
+    libpq-dev && apt-get clean
 
-# Copia o arquivo de dependências
-COPY requirements.txt /app/
+# Copia os arquivos de dependência
+COPY API/requirements.txt /app/
 
-# Atualize o pip antes de instalar os requisitos
+# Atualiza o pip antes de instalar os requisitos
 RUN python -m pip install --upgrade pip
 
-# Instala as dependências do projeto
+# Instala as dependências
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copia o código para dentro do container
+# Copia o código
 COPY . /app/
 
-# Copia o entrypoint.sh e define como executável
-COPY --chmod=755 entrypoint.sh /app/entrypoint.sh
-ENTRYPOINT ["/app/entrypoint.sh"]
+# Define a porta padrão
+EXPOSE 8000
+
+# Comando para iniciar a aplicação
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
