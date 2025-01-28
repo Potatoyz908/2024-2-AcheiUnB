@@ -381,7 +381,7 @@ export default {
         this.formSubmitted = true;
 
         setTimeout(() => {
-          window.location.replace(`http://localhost:8000/#/lost`);
+          window.location.replace(`https://acheiunb-1ff1f697079a.herokuapp.com/#/lost`);
         }, 1000);
       } catch (error) {
         this.alertMessage = "Erro ao publicar item.";
