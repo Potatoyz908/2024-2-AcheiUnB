@@ -372,7 +372,7 @@ def microsoft_callback(request):
                 value=jwt_access,
                 httponly=True,
                 secure=True,  # Ative apenas em HTTPS em produção
-                samesite="Lax",  # Para proteger contra CSRF
+                samesite="Strict",  # Para proteger contra CSRF
                 max_age=3600,  # 1 hora
             )
             return response
