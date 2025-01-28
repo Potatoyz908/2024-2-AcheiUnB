@@ -1,3 +1,4 @@
+import django_heroku
 import os
 from datetime import timedelta
 from pathlib import Path
@@ -274,3 +275,5 @@ JAZZMIN_SETTINGS = {
         ],
     },
 }
+
+django_heroku.settings(locals())
