@@ -318,16 +318,22 @@ def save_or_update_user(user_data, access_token=None):
         raise Exception(f"Erro ao salvar ou atualizar o usuário: {e}")
 
 
+
 def microsoft_login(request):
     """
     Inicia o fluxo de login com a Microsoft e redireciona o usuário automaticamente.
     """
-    app = ConfidentialClientApplication(
-        client_id=CLIENT_ID, client_credential=CLIENT_SECRET, authority=AUTHORITY
-    )
-    # Gera a URL de autorização
-    auth_url = app.get_authorization_request_url(scopes=SCOPES, redirect_uri=REDIRECT_URI)
-    return redirect(auth_url)
+    try:
+        app = ConfidentialClientApplication(
+            client_id=CLIENT_ID, client_credential=CLIENT_SECRET, authority=AUTHORITY
+        )
+        # Gera a URL de autorização
+        auth_url = app.get_authorization_request_url(scopes=SCOPES, redirect_uri=REDIRECT_URI)
+        logger.info(f"Redirecionando para URL de autorização: {auth_url}")
+        return redirect(auth_url)
+    except Exception as e:
+        logger.error(f"Erro ao iniciar fluxo de login: {e}")
+        return JsonResponse({"error": "Erro ao iniciar fluxo de login."}, status=500)
 
 
 def microsoft_callback(request):
@@ -339,31 +345,52 @@ def microsoft_callback(request):
         logger.error("Código de autorização não fornecido.")
         return JsonResponse({"error": "Código de autorização não fornecido."}, status=400)
 
-    app = ConfidentialClientApplication(
-        client_id=CLIENT_ID, client_credential=CLIENT_SECRET, authority=AUTHORITY
-    )
-
     try:
+        app = ConfidentialClientApplication(
+            client_id=CLIENT_ID, client_credential=CLIENT_SECRET, authority=AUTHORITY
+        )
+
         # Troca o código de autorização pelo token de acesso
         token_response = app.acquire_token_by_authorization_code(
             code=authorization_code, scopes=SCOPES, redirect_uri=REDIRECT_URI
         )
+        logger.info(f"Resposta do token: {token_response}")
+
         if "access_token" in token_response:
             access_token = token_response["access_token"]
 
             # Buscar dados do usuário
-            user_data = fetch_user_data(access_token)
+            try:
+                user_data = fetch_user_data(access_token)
+                logger.info(f"Dados do usuário obtidos: {user_data}")
+            except Exception as e:
+                logger.error(f"Erro ao buscar dados do usuário: {e}")
+                return JsonResponse({"error": "Erro ao buscar dados do usuário."}, status=500)
 
             # Salvar ou atualizar o usuário no banco de dados
-            user, created = save_or_update_user(user_data=user_data, access_token=access_token)
+            try:
+                user, created = save_or_update_user(user_data=user_data, access_token=access_token)
+                logger.info(f"Usuário {'criado' if created else 'atualizado'}: {user}")
+            except Exception as e:
+                logger.error(f"Erro ao salvar ou atualizar o usuário: {e}")
+                return JsonResponse({"error": "Erro ao salvar ou atualizar o usuário."}, status=500)
 
             # Autenticar o usuário
-            login(request, user)
+            try:
+                login(request, user)
+                logger.info(f"Usuário autenticado: {user}")
+            except Exception as e:
+                logger.error(f"Erro ao autenticar o usuário: {e}")
+                return JsonResponse({"error": "Erro ao autenticar o usuário."}, status=500)
 
             # Gerar JWT local
-            refresh = RefreshToken.for_user(user)
-            jwt_access = str(refresh.access_token)
-            str(refresh)
+            try:
+                refresh = RefreshToken.for_user(user)
+                jwt_access = str(refresh.access_token)
+                logger.info("JWT gerado com sucesso.")
+            except Exception as e:
+                logger.error(f"Erro ao gerar JWT: {e}")
+                return JsonResponse({"error": "Erro ao gerar token JWT."}, status=500)
 
             # Configurar cookies seguros
             response = HttpResponseRedirect("https://acheiunb-1ff1f697079a.herokuapp.com/#/found")
@@ -372,16 +399,18 @@ def microsoft_callback(request):
                 value=jwt_access,
                 httponly=True,
                 secure=True,  # Ative apenas em HTTPS em produção
-                samesite="Strict",  # Para proteger contra CSRF
+                samesite="Lax",  # Melhor para evitar problemas com redirecionamentos
                 max_age=3600,  # 1 hora
             )
             return response
         else:
-            logger.error("Falha ao adquirir token de acesso.")
-            return JsonResponse({"error": "Falha ao adquirir token de acesso."}, status=400)
+            error = token_response.get("error", "Erro desconhecido")
+            description = token_response.get("error_description", "Nenhum detalhe disponível")
+            logger.error(f"Falha ao adquirir token de acesso: {error} - {description}")
+            return JsonResponse({"error": error, "details": description}, status=400)
     except Exception as e:
         logger.error(f"Erro no callback: {e}")
-        return JsonResponse({"error": str(e)}, status=500)
+        return JsonResponse({"error": "Erro interno ao processar o callback."}, status=500)
 
 
 def get_user_data(access_token):
