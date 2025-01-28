@@ -116,7 +116,7 @@ SOCIALACCOUNT_PROVIDERS = {
         "APP": {
             "client_id": os.getenv("MICROSOFT_CLIENT_ID"),
             "secret": os.getenv("MICROSOFT_CLIENT_SECRET"),
-            "authority": os.getenv("MICROSOFT_AUTHORITY"),
+            "authority": os.getenv("AUTHORITY"),
             "key": "",
         },
     }
