@@ -28,3 +28,4 @@ django-celery-results
 django-jazzmin
 whitenoise
 dj-database-url
+django-heroku
