@@ -7,6 +7,7 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "API.AcheiUnB.settings")
 
 app = Celery("AcheiUnB")
 
+
 # Carrega as configurações do Django
 app.config_from_object("django.conf:settings", namespace="CELERY")
 
