@@ -8,9 +8,6 @@ import cloudinary
 import cloudinary.uploader
 from celery.schedules import crontab
 from decouple import config
-import API.users.signals  # Importação para garantir que os sinais sejam registrados
-import API.users.tasks  # Importação para garantir que as tasks sejam registradas
-import API.users
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -36,7 +33,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")  # Diretório onde os arquivos ser�
 # Application definition
 
 INSTALLED_APPS = [
-    "API.users.apps.UsersConfig",    
+    "users",
     "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
