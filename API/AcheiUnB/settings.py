@@ -42,15 +42,16 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sites",
     "django_filters",
-    "users",
     "rest_framework",
     "rest_framework.authtoken",
     "AcheiUnB",
+    "users",
     "django_extensions",
     "channels",
     "chat",
     "corsheaders",
     "django_celery_beat",
+    "django_celery_results", 
 ]
 
 MIDDLEWARE = [
@@ -270,9 +271,6 @@ CELERY_BEAT_SCHEDULE = {
         "schedule": crontab(hour=3, minute=0),  # Executar todos os dias às 3h da manhã
     },
 }
-
-# Configurações do Django celery results
-INSTALLED_APPS += ["django_celery_results"]
 
 
 JAZZMIN_SETTINGS = {
