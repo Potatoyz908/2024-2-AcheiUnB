@@ -343,55 +343,55 @@ def microsoft_callback(request):
         logger.error("Código de autorização não fornecido.")
         return JsonResponse({"error": "Código de autorização não fornecido."}, status=400)
 
-    try:
-        app = ConfidentialClientApplication(
+    # try:
+    app = ConfidentialClientApplication(
             client_id=CLIENT_ID, client_credential=CLIENT_SECRET, authority=AUTHORITY
         )
 
         # Troca o código de autorização pelo token de acesso
-        token_response = app.acquire_token_by_authorization_code(
+    token_response = app.acquire_token_by_authorization_code(
             code=authorization_code, scopes=SCOPES, redirect_uri=REDIRECT_URI
         )
-        logger.info(f"Resposta do token: {token_response}")
+    logger.info(f"Resposta do token: {token_response}")
 
-        if "access_token" in token_response:
-            access_token = token_response["access_token"]
+    if "access_token" in token_response:
+        access_token = token_response["access_token"]
 
             # Buscar dados do usuário
             # try:
-            user_data = fetch_user_data(access_token)
-            logger.info(f"Dados do usuário obtidos: {user_data}")
+        user_data = fetch_user_data(access_token)
+        logger.info(f"Dados do usuário obtidos: {user_data}")
             # except Exception as e:
             #     return JsonResponse( status=500)
 
             # Salvar ou atualizar o usuário no banco de dados
             # try:
-            user, created = save_or_update_user(user_data=user_data, access_token=access_token)
+        user, created = save_or_update_user(user_data=user_data, access_token=access_token)
                 # logger.info(f"Usuário {'criado' if created else 'atualizado'}: {user}")
             # except Exception as e:
                 # logger.error(f"Erro ao salvar ou atualizar o usuário CALLBACK: {e}")
                 # return JsonResponse({"error": "Erro ao salvar ou atualizar o usuário."}, status=500)
 
             # Autenticar o usuário
-            try:
-                login(request, user)
-                logger.info(f"Usuário autenticado: {user}")
-            except Exception as e:
-                logger.error(f"Erro ao autenticar o usuário: {e}")
-                return JsonResponse({"error": "Erro ao autenticar o usuário."}, status=500)
+            # try:
+        login(request, user)
+        logger.info(f"Usuário autenticado: {user}")
+            # except Exception as e:
+                # logger.error(f"Erro ao autenticar o usuário: {e}")
+                # return JsonResponse({"error": "Erro ao autenticar o usuário."}, status=500)
 
             # Gerar JWT local
-            try:
-                refresh = RefreshToken.for_user(user)
-                jwt_access = str(refresh.access_token)
-                logger.info("JWT gerado com sucesso.")
-            except Exception as e:
-                logger.error(f"Erro ao gerar JWT: {e}")
-                return JsonResponse({"error": "Erro ao gerar token JWT."}, status=500)
+            # try:
+        refresh = RefreshToken.for_user(user)
+        jwt_access = str(refresh.access_token)
+        logger.info("JWT gerado com sucesso.")
+            # except Exception as e:
+                # logger.error(f"Erro ao gerar JWT: {e}")
+                # return JsonResponse({"error": "Erro ao gerar token JWT."}, status=500)
 
             # Configurar cookies seguros
-            response = HttpResponseRedirect("https://acheiunb-1ff1f697079a.herokuapp.com/#/found")
-            response.set_cookie(
+        response = HttpResponseRedirect("https://acheiunb-1ff1f697079a.herokuapp.com/#/found")
+        response.set_cookie(
                 key="access_token",
                 value=jwt_access,
                 httponly=True,
@@ -399,15 +399,15 @@ def microsoft_callback(request):
                 samesite="Lax",  # Melhor para evitar problemas com redirecionamentos
                 max_age=3600,  # 1 hora
             )
-            return response
-        else:
-            error = token_response.get("error", "Erro desconhecido")
-            description = token_response.get("error_description", "Nenhum detalhe disponível")
-            logger.error(f"Falha ao adquirir token de acesso: {error} - {description}")
-            return JsonResponse({"error": error, "details": description}, status=400)
-    except Exception as e:
-        logger.error(f"Erro no callback: {e}")
-        return JsonResponse({"error": "Erro interno ao processar o callback."}, status=500)
+        return response
+    else:
+        error = token_response.get("error", "Erro desconhecido")
+        description = token_response.get("error_description", "Nenhum detalhe disponível")
+        logger.error(f"Falha ao adquirir token de acesso: {error} - {description}")
+        return JsonResponse({"error": error, "details": description}, status=400)
+    # except Exception as e:
+    #     logger.error(f"Erro no callback: {e}")
+    #     return JsonResponse({"error": "Erro interno ao processar o callback."}, status=500)
 
 
 def get_user_data(access_token):
