@@ -3,7 +3,7 @@ import os
 from celery import Celery
 
 # Define a configuração do Django
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "AcheiUnB.settings",
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "API.AcheiUnB.settings",
                       "API.users.tasks")
 
 app = Celery("AcheiUnB")
