@@ -242,12 +242,12 @@ LANGUAGE_CODE = "pt-br"
 
 
 # Configurações do Celery
-CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "redis://redis:6379/0")
+CELERY_BROKER_URL = os.getenv("REDIS_URL")
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 
 # Backend para armazenar resultados (opcional)
-CELERY_RESULT_BACKEND = os.getenv("CELERY_RESULT_BACKEND", "redis://redis:6379/0")
+CELERY_RESULT_BACKEND = os.getenv("REDIS_URL")
 
 # Celery Beat Configuration
 CELERY_BEAT_SCHEDULE = {

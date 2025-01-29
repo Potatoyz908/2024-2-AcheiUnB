@@ -50,7 +50,7 @@ services:
       - db
     environment:
       - DJANGO_SETTINGS_MODULE=AcheiUnB.settings
-      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_BROKER_URL=${REDIS_URL}
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
@@ -70,7 +70,7 @@ services:
       - db
     environment:
       - DJANGO_SETTINGS_MODULE=AcheiUnB.settings
-      - CELERY_BROKER_URL=${CELERY_BROKER_URL}
+      - CELERY_BROKER_URL=${REDIS_URL}
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
