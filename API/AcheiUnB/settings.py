@@ -33,7 +33,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")  # Diret√≥rio onde os arquivos ser√
 # Application definition
 
 INSTALLED_APPS = [
-    "API.users",
+    "API.users.apps.UsersConfig",    
     "jazzmin",
     "django.contrib.admin",
     "django.contrib.auth",
