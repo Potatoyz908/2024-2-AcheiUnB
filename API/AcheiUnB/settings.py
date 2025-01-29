@@ -1,3 +1,4 @@
+import ssl
 import django_heroku
 import os
 from datetime import timedelta
@@ -242,12 +243,25 @@ LANGUAGE_CODE = "pt-br"
 
 
 # Configurações do Celery
-CELERY_BROKER_URL = os.getenv("REDIS_URL")
+# CELERY_BROKER_URL = os.getenv("REDIS_URL")
 CELERY_ACCEPT_CONTENT = ["json"]
 CELERY_TASK_SERIALIZER = "json"
 
+
+CELERY_BROKER_URL = os.getenv("CELERY_BROKER_URL", "rediss://:p8b8b13dee0a418bc767e3d9a429e6bf4947f8d9884fb6416d5f663813b900e90@ec2-23-21-45-253.compute-1.amazonaws.com:22220")
+CELERY_RESULT_BACKEND = CELERY_BROKER_URL
+
+# Se quiser desabilitar verificação de certificado (inseguro):
+BROKER_USE_SSL = {
+    'ssl_cert_reqs': ssl.CERT_NONE
+}
+
+# Para o backend de resultados, também:
+CELERY_REDIS_BACKEND_USE_SSL = {
+    'ssl_cert_reqs': ssl.CERT_NONE
+}
 # Backend para armazenar resultados (opcional)
-CELERY_RESULT_BACKEND = os.getenv("REDIS_URL")
+# CELERY_RESULT_BACKEND = os.getenv("REDIS_URL")
 
 # Celery Beat Configuration
 CELERY_BEAT_SCHEDULE = {
