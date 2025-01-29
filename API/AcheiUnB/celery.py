@@ -5,7 +5,7 @@ from celery import Celery
 # Configuração do Django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'API.AcheiUnB.settings')
 
-app = Celery('AcheiUnB')
+app = Celery('AcheiUnb')
 
 # Carrega configurações do Celery do Django
 app.config_from_object('django.conf:settings', namespace='CELERY')
