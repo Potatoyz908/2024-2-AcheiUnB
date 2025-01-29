@@ -292,9 +292,9 @@ def save_or_update_user(user_data, access_token=None):
     """
     Salva ou atualiza os dados do usuário no banco de dados.
     """
-    try:
-        user, created = User.objects.update_or_create(
-            email=user_data.get("userPrincipalName"),
+    # try:
+    user, created = User.objects.update_or_create(
+        email=user_data.get("userPrincipalName"),
             defaults={
                 "username": user_data.get("userPrincipalName").split("@")[0],
                 "first_name": user_data.get("givenName", ""),
@@ -307,13 +307,13 @@ def save_or_update_user(user_data, access_token=None):
                 "date_joined": datetime.now(),
             },
         )
-        photo_url = get_and_save_user_photo(access_token, user.id)
-        profile, _ = UserProfile.objects.update_or_create(
+    photo_url = get_and_save_user_photo(access_token, user.id)
+    profile, _ = UserProfile.objects.update_or_create(
             user=user, defaults={"profile_picture": photo_url}
         )
-        return user, created
-    except Exception as e:
-        raise Exception(f"Erro ao salvar ou atualizar o usuário: save or update{e}")
+    return user, created
+    # except Exception as e:
+        # raise Exception(f"Erro ao salvar ou atualizar o usuário: save or update{e}")
 
 
 
@@ -358,20 +358,19 @@ def microsoft_callback(request):
             access_token = token_response["access_token"]
 
             # Buscar dados do usuário
-            try:
-                user_data = fetch_user_data(access_token)
-                logger.info(f"Dados do usuário obtidos: {user_data}")
-            except Exception as e:
-                logger.error(f"Erro ao buscar dados do usuário: {e}")
-                return JsonResponse({"error": "Erro ao buscar dados do usuário."}, status=500)
+            # try:
+            user_data = fetch_user_data(access_token)
+            logger.info(f"Dados do usuário obtidos: {user_data}")
+            # except Exception as e:
+            #     return JsonResponse( status=500)
 
             # Salvar ou atualizar o usuário no banco de dados
-            try:
-                user, created = save_or_update_user(user_data=user_data, access_token=access_token)
-                logger.info(f"Usuário {'criado' if created else 'atualizado'}: {user}")
-            except Exception as e:
-                logger.error(f"Erro ao salvar ou atualizar o usuário CALLBACK: {e}")
-                return JsonResponse({"error": "Erro ao salvar ou atualizar o usuário."}, status=500)
+            # try:
+            user, created = save_or_update_user(user_data=user_data, access_token=access_token)
+                # logger.info(f"Usuário {'criado' if created else 'atualizado'}: {user}")
+            # except Exception as e:
+                # logger.error(f"Erro ao salvar ou atualizar o usuário CALLBACK: {e}")
+                # return JsonResponse({"error": "Erro ao salvar ou atualizar o usuário."}, status=500)
 
             # Autenticar o usuário
             try:
