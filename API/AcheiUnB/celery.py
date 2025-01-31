@@ -5,9 +5,9 @@ import os
 from celery import Celery
 
 # Define o módulo de configurações do Django
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "API.AcheiUnb.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "API.AcheiUnB.settings")
 
-app = Celery("AcheiUnb")
+app = Celery("AcheiUnB")
 
 # Carrega as configurações do Django
 app.config_from_object("django.conf:settings", namespace="CELERY")
@@ -15,4 +15,4 @@ app.config_from_object("django.conf:settings", namespace="CELERY")
 import django 
 django.setup()
 # Descobrir tasks automaticamente em aplicativos registrados
-app.autodiscover_tasks(['API.AcheiUnB.users'])
+app.autodiscover_tasks()
