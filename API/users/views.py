@@ -238,14 +238,14 @@ class ItemImageViewSet(ModelViewSet):
 
 
 class UserValidateView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
         return Response({"message": "Token válido"})
 
 
 class UserDetailView(APIView):
-    permission_classes = [IsAuthenticated]
+    # permission_classes = [IsAuthenticated]
 
     def get(self, request):
         user = request.user
