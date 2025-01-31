@@ -120,7 +120,7 @@ SOCIALACCOUNT_PROVIDERS = {
         },
     }
 }
-MICROSOFT_REDIRECT_URI = "http://localhost:8000/accounts/microsoft/login/callback/"
+MICROSOFT_REDIRECT_URI = "https://acheiunb-1ff1f697079a.herokuapp.com/accounts/microsoft/login/callback/"
 # Permitir apenas usuários do tenant da UnB
 SOCIALACCOUNT_QUERY_EMAIL = True
 SOCIALACCOUNT_PROVIDERS["microsoft"]["AUTH_PARAMS"] = {
