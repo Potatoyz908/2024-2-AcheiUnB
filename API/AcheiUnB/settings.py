@@ -229,11 +229,11 @@ LOGIN_REDIRECT_URL = "/certu"
 LOGOUT_REDIRECT_URL = ""
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 LANGUAGE_CODE = "pt-br"
+CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'rediss://:p8b8b13dee0a418bc767e3d9a429e6bf4947f8d9884fb6416d5f663813b900e90@ec2-23-21-45-253.compute-1.amazonaws.com:22220?ssl_cert_reqs=CERT_NONE')
+CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'rediss://:p8b8b13dee0a418bc767e3d9a429e6bf4947f8d9884fb6416d5f663813b900e90@ec2-23-21-45-253.compute-1.amazonaws.com:22220?ssl_cert_reqs=CERT_NONE')
 
-CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'rediss://:p8b8b13dee0a418bc767e3d9a429e6bf4947f8d9884fb6416d5f663813b900e90@ec2-23-21-45-253.compute-1.amazonaws.com:22220')
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
-CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'rediss://:p8b8b13dee0a418bc767e3d9a429e6bf4947f8d9884fb6416d5f663813b900e90@ec2-23-21-45-253.compute-1.amazonaws.com:22220')
 CSRF_TRUSTED_ORIGINS = [
     "https://acheiunb-1ff1f697079a.herokuapp.com",
 ]
