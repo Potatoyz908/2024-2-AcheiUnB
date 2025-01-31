@@ -365,7 +365,7 @@ def microsoft_callback(request):
             str(refresh)
 
             # Configurar cookies seguros
-            response = HttpResponseRedirect("http://localhost:8000/#/found")
+            response = HttpResponseRedirect("https://acheiunb-1ff1f697079a.herokuapp.com/#/found")
             response.set_cookie(
                 key="access_token",
                 value=jwt_access,
