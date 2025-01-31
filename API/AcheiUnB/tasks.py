@@ -7,7 +7,7 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.utils.timezone import now
 
-from .models import Item, ItemImage
+from users.models import Item, ItemImage
 
 
 @shared_task
