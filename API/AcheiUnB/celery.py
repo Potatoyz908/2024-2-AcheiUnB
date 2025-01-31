@@ -12,7 +12,5 @@ app = Celery("AcheiUnB")
 # Carrega as configurações do Django
 app.config_from_object("django.conf:settings", namespace="CELERY")
 
-import django 
-django.setup()
 # Descobrir tasks automaticamente em aplicativos registrados
 app.autodiscover_tasks()
