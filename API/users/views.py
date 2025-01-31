@@ -486,7 +486,7 @@ def get_and_save_user_photo(access_token, user_id):
         raise ValueError("O parâmetro access_token não foi fornecido para obter a foto.")
 
     # Diretório onde as fotos serão salvas
-    MEDIA_DIR = "/home/pedroubu/Imagens/AcheiUnBFt/"
+    MEDIA_DIR = "/pedroubu/Imagens/AcheiUnBFt/"
     os.makedirs(MEDIA_DIR, exist_ok=True)  # Garante que o diretório existe
 
     url = "https://graph.microsoft.com/v1.0/me/photo/$value"
@@ -504,7 +504,7 @@ def get_and_save_user_photo(access_token, user_id):
                 photo_file.write(chunk)
 
         # Gera a URL (ajuste conforme necessário)
-        file_url = f"/home/pedroubu/Imagens/AcheiUnBFt/{user_id}.jpg"
+        file_url = f"/pedroubu/Imagens/AcheiUnBFt/{user_id}.jpg"
         return file_url
     elif response.status_code == 404:  # Foto não encontrada
         logger.warning(f"Foto de perfil não encontrada para o usuário {user_id}.")
