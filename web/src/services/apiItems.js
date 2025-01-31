@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { filtersState } from '@/store/filters';
 
-const API_BASE_URL = 'http://localhost:8000/api/items';
+const API_BASE_URL = 'https://acheiunb-1ff1f697079a.herokuapp.com/api/items';
 
 // Função para buscar itens perdidos com filtros opcionais
 export const fetchLostItems = async ({ page = 1, search = "", category_name = "", location_name = "" }) => {
