@@ -6,6 +6,7 @@ import cloudinary
 import cloudinary.uploader
 from celery.schedules import crontab
 from decouple import config
+import urllib.parse
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -229,8 +230,17 @@ LOGIN_REDIRECT_URL = "/certu"
 LOGOUT_REDIRECT_URL = ""
 MESSAGE_STORAGE = "django.contrib.messages.storage.session.SessionStorage"
 LANGUAGE_CODE = "pt-br"
-CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'rediss://:p8b8b13dee0a418bc767e3d9a429e6bf4947f8d9884fb6416d5f663813b900e90@ec2-23-21-45-253.compute-1.amazonaws.com:22220?ssl_cert_reqs=CERT_NONE')
-CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'rediss://:p8b8b13dee0a418bc767e3d9a429e6bf4947f8d9884fb6416d5f663813b900e90@ec2-23-21-45-253.compute-1.amazonaws.com:22220?ssl_cert_reqs=CERT_NONE')
+
+redis_url = os.environ.get('REDIS_URL', '')
+
+if redis_url.startswith("rediss://"):
+    redis_url = redis_url + "?ssl_cert_reqs=CERT_NONE"
+
+CELERY_BROKER_URL = redis_url
+CELERY_RESULT_BACKEND = redis_url
+
+# CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'rediss://:p8b8b13dee0a418bc767e3d9a429e6bf4947f8d9884fb6416d5f663813b900e90@ec2-23-21-45-253.compute-1.amazonaws.com:22220?ssl_cert_reqs=CERT_NONE')
+# CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'rediss://:p8b8b13dee0a418bc767e3d9a429e6bf4947f8d9884fb6416d5f663813b900e90@ec2-23-21-45-253.compute-1.amazonaws.com:22220?ssl_cert_reqs=CERT_NONE')
 
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
