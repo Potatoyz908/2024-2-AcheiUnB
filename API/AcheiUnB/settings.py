@@ -20,7 +20,11 @@ SECRET_KEY = "django-insecure-%7=()&6sxvzdq68n)q^8n)g6#kw8p=45v)(hp^t%@*e4ty=##u
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = [
+    "acheiunb-1ff1f697079a.herokuapp.com",
+    "localhost",
+    "127.0.0.1"
+]
 AUTH_USER_MODEL = "auth.User"
 MEDIA_URL = "/media/"  # Prefixo da URL para os arquivos
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")  # Diretório onde os arquivos serão salvos
@@ -230,7 +234,9 @@ CELERY_BROKER_URL = os.environ.get('REDIS_URL', 'rediss://:p8b8b13dee0a418bc767e
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_BACKEND = os.environ.get('REDIS_URL', 'rediss://:p8b8b13dee0a418bc767e3d9a429e6bf4947f8d9884fb6416d5f663813b900e90@ec2-23-21-45-253.compute-1.amazonaws.com:22220')
-
+CSRF_TRUSTED_ORIGINS = [
+    "https://acheiunb-1ff1f697079a.herokuapp.com",
+]
 
 # Celery Beat Configuration
 CELERY_BEAT_SCHEDULE = {
