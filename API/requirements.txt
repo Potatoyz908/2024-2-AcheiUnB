@@ -26,3 +26,4 @@ celery[redis]
 django-celery-beat
 django-celery-results
 django-jazzmin
+whitenoise
