@@ -146,17 +146,21 @@ class ItemViewSet(ModelViewSet):
                 Item.objects.filter(status="found")
                 .select_related("category", "location", "color", "brand")
                 .prefetch_related("images")
+                .order_by("-created_at")
             )
         elif "lost" in self.request.path:
             return (
                 Item.objects.filter(status="lost")
                 .select_related("category", "location", "color", "brand")
                 .prefetch_related("images")
+                .order_by("-created_at")
             )
 
-        return Item.objects.select_related(
-            "category", "location", "color", "brand"
-        ).prefetch_related("images")
+        return (
+            Item.objects.select_related("category", "location", "color", "brand")
+            .prefetch_related("images")
+            .order_by("-created_at")
+        )
 
     def get_paginated_response(self, data):
         total_found = Item.objects.filter(status="found").count()
