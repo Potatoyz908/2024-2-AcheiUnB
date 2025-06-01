@@ -1,5 +1,6 @@
-from rest_framework import permissions, viewsets
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import ModelViewSet
 
 from users.tasks import send_report_confirmation, send_report_notification
 
@@ -7,10 +8,10 @@ from .models import Report
 from .serializers import ReportSerializer
 
 
-class ReportViewSet(viewsets.ModelViewSet):
+class ReportViewSet(ModelViewSet):
     queryset = Report.objects.all()
     serializer_class = ReportSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def _validate_duplicate_report(self, reporter, report_type, item, chatRoom):
         if report_type == "item" and item:
