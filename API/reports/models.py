@@ -45,7 +45,7 @@ class Report(models.Model):
     item = models.ForeignKey(Item, null=True, blank=True, on_delete=models.SET_NULL)
     chatRoom = models.ForeignKey(ChatRoom, null=True, blank=True, on_delete=models.SET_NULL)
 
-    categories = models.JSONField()
+    categories = models.CharField(max_length=50)  # Alterado para armazenar uma única categoria
     description = models.TextField(blank=True)
     attachment = models.FileField(upload_to="reports/", blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
