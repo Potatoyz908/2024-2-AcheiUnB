@@ -6,7 +6,7 @@ from .models import CHAT_REPORT_CATEGORIES, ITEM_REPORT_CATEGORIES, Report
 class ReportSerializer(serializers.ModelSerializer):
     def validate(self, data):
         report_type = data.get("report_type")
-        categories = data.get("categories", [])
+        categories = data.get("categories")  # Alterado para aceitar apenas uma string
         if report_type == "item":
             valid_categories = ITEM_REPORT_CATEGORIES
         elif report_type == "chat":
@@ -14,13 +14,10 @@ class ReportSerializer(serializers.ModelSerializer):
         else:
             raise serializers.ValidationError({"report_type": "Tipo de denúncia inválido."})
 
-        if not isinstance(categories, list):
+        if categories not in valid_categories:
             raise serializers.ValidationError(
-                {"categories": "Deve ser uma lista de categorias."}
+                {"categories": f"Categoria inválida: {categories}"}
             )
-        for cat in categories:
-            if cat not in valid_categories:
-                raise serializers.ValidationError({"categories": f"Categoria inválida: {cat}"})
         return data
 
     class Meta:
