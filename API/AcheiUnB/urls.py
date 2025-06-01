@@ -46,7 +46,7 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/chat/", include("chat.urls")),
     path("api/", include("users.urls")),
-    path("api/reports/", include("reports.urls")),
+    path("api/", include("reports.urls")),
     path("delete-user/<int:user_id>/", DeleteUserView.as_view(), name="delete_user"),
     path(
         "swagger/", schema_view.with_ui("swagger", cache_timeout=0), name="schema-swagger-ui"
