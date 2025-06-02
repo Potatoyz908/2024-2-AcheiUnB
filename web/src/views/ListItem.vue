@@ -431,7 +431,7 @@ const submitReport = async () => {
     closeReportModal();
   } catch (error) {
     console.error("Erro ao enviar denúncia:", error);
-    alertMessage.value = "Erro ao enviar denúncia. Tente novamente mais tarde.";
+    alertMessage.value = "Erro ao enviar denúncia. Só é possível enviar uma denúncia por item.";
     submitError.value = true;
   } finally {
     isReportSubmitting.value = false;
