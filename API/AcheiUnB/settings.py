@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "channels",
     "chat",
+    "reports",
     "corsheaders",
     "django_celery_beat",
     "drf_yasg",

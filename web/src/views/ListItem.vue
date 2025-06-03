@@ -14,6 +14,23 @@
   >
     <div class="w-full md:flex md:gap-8 md:max-w-4xl">
       <div class="w-full max-w-md md:max-w-none md:w-1/2 relative">
+        <!-- Botão de denúncia posicionado fora da imagem, próximo à borda superior direita -->
+        <button
+          v-if="currentUser?.id !== item.user_id"
+          @click="openReportModal"
+          class="absolute -top-4 right-0 z-20 flex items-center gap-2 text-red-600 font-semibold text-base md:text-lg hover:underline hover:text-red-700 bg-white/90 px-3 py-1 rounded-full shadow border border-red-200 transition-colors duration-200"
+        >
+          <!-- Ícone de balão de mensagem com exclamação -->
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6">
+            <path d="M21 11.5a8.38 8.38 0 01-.9 3.8 8.5 8.5 0 01-7.6 4.7 8.38 8.38 0 01-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 01-.9-3.8 8.5 8.5 0 014.7-7.6A8.38 8.38 0 0112.5 3a8.5 8.5 0 018.5 8.5z"/>
+            <circle cx="12" cy="15.5" r="1" fill="currentColor"/>
+            <path d="M12 8.5v2.5a1 1 0 001 1h0a1 1 0 001-1v-1a1 1 0 00-1-1h-1"/>
+            <line x1="12" y1="8" x2="12" y2="12" stroke="currentColor" stroke-width="1.5"/>
+            <circle cx="12" cy="16" r="0.5" fill="currentColor"/>
+          </svg>
+          Denunciar item
+        </button>
+
         <div v-if="!item.image_urls || item.image_urls.length === 0" class="w-full h-64">
           <img
             :src="notAvailableImage"
@@ -156,6 +173,68 @@
   </div>
 
   <Alert v-if="submitError" type="error" :message="alertMessage" @closed="submitError = false" />
+  <Alert v-if="submitSuccess" type="success" :message="alertMessage" @closed="submitSuccess = false" />
+
+  <!-- Modal de denúncia -->
+  <div v-if="showReportModal" class="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-lg w-full max-w-md p-6 shadow-lg">
+      <h3 class="text-xl font-bold mb-4 text-gray-800">Denunciar item</h3>
+      
+      <p class="text-sm text-gray-600 mb-4">
+        Informe o motivo da sua denúncia. Nossa equipe irá analisar e tomar as medidas necessárias.
+      </p>
+      
+      <div class="mb-4">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+        <select 
+          v-model="reportForm.category" 
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-laranja"
+        >
+          <option value="" disabled>Selecione um motivo</option>
+          <option value="Item ilegal/proibido">Item ilegal/proibido</option>
+          <option value="Imagem inadequada">Imagem inadequada</option>
+          <option value="Item falso">Item falso</option>
+          <option value="Spam/golpe">Spam/golpe</option>
+          <option value="Outros">Outros</option>
+        </select>
+      </div>
+      
+      <div class="mb-5">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+        <textarea 
+          v-model="reportForm.description" 
+          rows="4" 
+          placeholder="Descreva o problema com mais detalhes"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-laranja"
+        ></textarea>
+      </div>
+
+      <div class="mb-5">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Anexo</label>
+        <input 
+          type="file" 
+          @change="handleFileUpload" 
+          class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-laranja"
+        />
+      </div>
+      
+      <div class="flex justify-end gap-3">
+        <button 
+          @click="closeReportModal" 
+          class="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+        >
+          Cancelar
+        </button>
+        <button 
+          @click="submitReport" 
+          :disabled="isReportSubmitting"
+          class="px-4 py-2 text-white bg-laranja rounded-md hover:bg-laranja/80 transition-colors disabled:bg-gray-400"
+        >
+          {{ isReportSubmitting ? 'Enviando...' : 'Enviar denúncia' }}
+        </button>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -178,6 +257,7 @@ const isMobile = ref(window.innerWidth < 768);
 
 const alertMessage = ref("");
 const submitError = ref(false);
+const submitSuccess = ref(false);
 
 const isLoaded = ref(false);
 
@@ -289,6 +369,72 @@ const handleChat = async () => {
     console.error("Erro ao criar/aceder chat:", error.response?.data || error.message);
     alertMessage.value = "Erro ao criar chat.";
     submitError.value = true;
+  }
+};
+
+// Variáveis para o modal de denúncia
+const showReportModal = ref(false);
+const isReportSubmitting = ref(false);
+const reportForm = ref({
+  category: "",
+  description: "",
+  attachment: null,
+});
+
+const handleFileUpload = (event) => {
+  const file = event.target.files[0];
+  reportForm.value.attachment = file;
+};
+
+// Funções para abrir e fechar o modal
+const openReportModal = () => {
+  showReportModal.value = true;
+  reportForm.value = {
+    category: "",
+    description: "",
+    attachment: null,
+  };
+};
+
+const closeReportModal = () => {
+  showReportModal.value = false;
+};
+
+// Função para enviar a denúncia para a API
+const submitReport = async () => {
+  if (!reportForm.value.category) {
+    alertMessage.value = "Por favor, selecione uma categoria para a denúncia.";
+    submitError.value = true;
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append("report_type", "item");
+  formData.append("categories", reportForm.value.category);
+  formData.append("description", reportForm.value.description);
+  formData.append("item", item.value.id);
+  if (reportForm.value.attachment) {
+    formData.append("attachment", reportForm.value.attachment);
+  }
+
+  try {
+    isReportSubmitting.value = true;
+
+    const response = await api.post("/reports/", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    alertMessage.value = "Denúncia enviada com sucesso!";
+    submitSuccess.value = true;
+    closeReportModal();
+  } catch (error) {
+    console.error("Erro ao enviar denúncia:", error);
+    alertMessage.value = "Erro ao enviar denúncia. Só é possível enviar uma denúncia por item.";
+    submitError.value = true;
+  } finally {
+    isReportSubmitting.value = false;
   }
 };
 
