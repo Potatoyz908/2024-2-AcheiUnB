@@ -8,6 +8,7 @@ from .views import (
     ItemImageViewSet,
     ItemViewSet,
     LocationViewSet,
+    LogoutView,
     MyItemsFoundView,
     MyItemsLostView,
     TestUserView,
@@ -37,4 +38,5 @@ urlpatterns = [
     path("users/<int:user_id>/", UserListView.as_view(), name="user-detail"),
     # Implementação futura sobre matchs path("items/<int:item_id>/matches/",
     # MatchItemViewSet.as_view(), name="item-matches"),
+    path("logout/", LogoutView.as_view(), name="logout"),
 ]
