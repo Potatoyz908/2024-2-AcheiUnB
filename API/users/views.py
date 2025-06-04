@@ -8,7 +8,9 @@ import requests
 from django.contrib.auth import get_user_model, login
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -616,3 +618,20 @@ class DeleteUserView(View):
             )
         except User.DoesNotExist:
             return JsonResponse({"error": "Usuário não encontrado."}, status=404)
+
+
+class LogoutView(APIView):
+    """
+    Endpoint para logout seguro do usuário.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    @method_decorator(csrf_exempt)
+    def post(self, request):
+        response = JsonResponse({"detail": "Logout realizado com sucesso."})
+        response.delete_cookie("access_token")
+        response.delete_cookie("refresh_token")
+        if hasattr(request, "session"):
+            request.session.flush()
+        return response
