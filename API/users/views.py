@@ -387,7 +387,10 @@ class UserDetailView(APIView):
         except UserProfile.DoesNotExist:
             foto_url = None
 
-        matricula = user.email.split("@")[0] if "@aluno.unb.br" in user.email else None
+        if user.email.endswith("@aluno.unb.br") or user.email.endswith("@unb.br"):
+            matricula = user.email.split("@")[0]
+        else:
+            matricula = None
 
         user_data = {
             "id": user.id,
