@@ -389,7 +389,7 @@ class UserDetailView(APIView):
         except UserProfile.DoesNotExist:
             foto_url = None
 
-        if user.email.endswith("@aluno.unb.br") or user.email.endswith("@unb.br"):
+        if user.email.endswith("@aluno.unb.br"):
             matricula = user.email.split("@")[0]
         else:
             matricula = None
@@ -433,8 +433,8 @@ def save_or_update_user(user_data, access_token=None):
             email=user_data.get("userPrincipalName"),
             defaults={
                 "username": user_data.get("userPrincipalName").split("@")[0],
-                "first_name": user_data.get("givenName", ""),
-                "last_name": user_data.get("surname", ""),
+                "first_name": user_data.get("givenName") or "",
+                "last_name": user_data.get("surname") or "",
                 "password": "defaultpassword",
                 "last_login": datetime.now(),
                 "is_superuser": False,
