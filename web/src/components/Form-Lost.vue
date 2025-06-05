@@ -176,6 +176,7 @@
           v-model="item.lostDate"
           type="date"
           name="lostDate"
+          :max="today"
         />
       </div>
 
@@ -283,6 +284,7 @@ export default {
       item: new Item(),
       lostTime: "",
       lostDate: "",
+      today: new Date().toISOString().split("T")[0],
       previews: [],
       imagesToRemove: [],
       submitError: false,
