@@ -78,8 +78,8 @@ async function fetchCurrentUser() {
     await fetchUserChatrooms();
   } catch (error) {
     console.error("Erro ao buscar usuário:", error);
-    alertMessage = "Erro ao buscar usuário.";
-    submitError = true;
+    alertMessage.value = "Erro ao buscar usuário.";
+    submitError.value = true;
   }
 }
 
@@ -122,8 +122,8 @@ async function fetchUserChatrooms() {
     chatrooms.value = chatroomsTemp;
   } catch (error) {
     console.error("Erro ao buscar conversas:", error);
-    alertMessage = "Erro ao buscar conversas.";
-    submitError = true;
+    alertMessage.value = "Erro ao buscar conversas.";
+    submitError.value = true;
   } finally {
     loadingChats.value = false;
   }

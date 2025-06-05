@@ -89,8 +89,8 @@ const confirmDelete = async (itemId) => {
     myItemsFound.value = myItemsFound.value.filter((item) => item.id !== itemId);
   } catch (error) {
     console.error("Erro ao excluir item:", error);
-    alertMessage = "Erro ao excluir item.";
-    submitError = true;
+    alertMessage.value = "Erro ao excluir item.";
+    submitError.value = true;
   }
 };
 

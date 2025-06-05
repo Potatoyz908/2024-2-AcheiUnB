@@ -109,8 +109,8 @@ async function fetchUserData() {
     };
   } catch (error) {
     console.error("Erro ao carregar dados do usuário:", error);
-    alertMessage = "Erro ao carregar dados do usuário.";
-    submitError = true;
+    alertMessage.value = "Erro ao carregar dados do usuário.";
+    submitError.value = true;
   }
 }
 
