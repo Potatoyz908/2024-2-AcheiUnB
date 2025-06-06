@@ -103,9 +103,10 @@ const fetchItems = async (page = 1) => {
       location_name: activeLocation,
     });
 
-    if (response && response.results && response.count !== undefined) {
+    if (response && response.count !== undefined) {
       lostItems.value = response.results;
       totalPages.value = Math.ceil(response.count / 27);
+      currentPage.value = page; // Atualiza currentPage somente após resposta bem-sucedida
     } else {
       console.error("Resposta da API inválida:", response);
     }
@@ -117,16 +118,14 @@ const fetchItems = async (page = 1) => {
 };
 
 const goToPreviousPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value -= 1;
-    fetchItems(currentPage.value);
+  if (currentPage.value > 1 && !loading.value) {
+    fetchItems(currentPage.value - 1);
   }
 };
 
 const goToNextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value += 1;
-    fetchItems(currentPage.value);
+  if (currentPage.value < totalPages.value && !loading.value) {
+    fetchItems(currentPage.value + 1);
   }
 };
 
