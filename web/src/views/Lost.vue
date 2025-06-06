@@ -28,8 +28,8 @@
       />
     </div>
 
-    <div v-if="lostItems.length" class="flex w-full justify-start sm:justify-center">
-      <div class="ml-24 transform -translate-x-1/2 flex gap-4 z-10">
+    <div v-if="lostItems.length" class="flex w-full justify-start sm:justify-center pb-24">
+      <div class="ml-24 transform -translate-x-1/2 flex gap-4 z-0">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
