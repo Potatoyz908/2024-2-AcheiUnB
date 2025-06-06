@@ -7,8 +7,8 @@
       <span
         class="text-azul font-inter font-semibold text-xs sm:text-lg ml-4 sm:ml-12 transform group-hover:translate-x-0"
       >
-        <span class="block lg:hidden">Adicionar perdido</span>
-        <span class="hidden lg:block">Adicionar item perdido</span>
+        <span class="block max-[769px]:block min-[770px]:hidden">Adicionar perdido</span>
+        <span class="hidden min-[770px]:block">Adicionar item perdido</span>
       </span>
       <span
         class="absolute right-0 h-12 w-10 sm:h-16 sm:w-10 md:h-20 md:w-10 rounded-xl bg-laranja flex items-center justify-center transform group-hover:translate-x-0 group-hover:w-full transition-all duration-300"
@@ -79,20 +79,33 @@ export default {
   .lg\:block { display: block !important; }
   .lg\:hidden { display: none !important; }
 }
-@media (max-width: 359px) {
+@media (max-width: 399px) {
   button {
-    width: 10rem !important;
-    height: 2.5rem !important;
+    width: 64px !important;
+    height: 64px !important;
+    font-size: 2.2rem !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
   }
-  .text-xs, .sm\:text-lg {
-    font-size: 0.75rem !important;
-    line-height: 1rem !important;
-    margin-left: 0.5rem !important;
+  .text-azul, .font-inter, .font-semibold, .text-xs, .sm\:text-lg, .ml-4, .sm\:ml-12 {
+    display: none !important;
   }
-  .h-12, .sm\:h-16 { height: 2.5rem !important; }
-  .w-10, .sm\:w-10 { width: 2.5rem !important; }
-  .mr-4, .sm\:mr-10 { margin-right: 0.5rem !important; }
-  .w-6, .sm\:w-8 { width: 1.25rem !important; }
-  .h-6, .sm\:h-8 { height: 1.25rem !important; }
+  .absolute.right-0 {
+    position: static !important;
+    margin: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+  img {
+    margin: 0 !important;
+    width: 2.2rem !important;
+    height: 2.2rem !important;
+    display: block !important;
+  }
 }
 </style>
