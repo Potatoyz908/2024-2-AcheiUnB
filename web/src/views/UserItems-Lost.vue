@@ -34,7 +34,7 @@
     class="grid grid-cols-[repeat(auto-fit,_minmax(180px,_1fr))] sm:grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))] justify-items-center align-items-center lg:px-3 gap-y-3 pb-24"
   >
     <ItemCard
-      v-for="item in myItemsLost"
+      v-for="item in paginatedItems"
       :key="item.id"
       :id="item.id"
       :name="item.name"
@@ -44,6 +44,44 @@
       :isMyItem="true"
       @delete="confirmDelete"
     />
+  </div>
+
+  <div v-if="myItemsLost.length" class="flex w-full justify-center pb-24">
+    <div class="flex gap-4 z-0 items-center">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="size-10 text-azul hover:text-laranja transition duration-200 cursor-pointer"
+        @click="goToPreviousPage"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+        />
+      </svg>
+      <span class="font-medium text-base text-azul select-none min-w-[30px] text-center">
+        {{ currentPage }} / {{ totalPages }}
+      </span>
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="size-10 text-azul hover:text-laranja transition duration-200 cursor-pointer"
+        @click="goToNextPage"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="m12.75 15 3-3m0 0-3-3m3 3h-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+        />
+      </svg>
+    </div>
   </div>
 
   <ButtonAdd />
@@ -56,7 +94,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, computed } from "vue";
 import { fetchMyItemsLost, deleteItem } from "@/services/apiItems";
 import { formatTime } from "@/utils/dateUtils";
 import MainMenu from "../components/Main-Menu.vue";
@@ -72,6 +110,10 @@ const submitError = ref(false);
 const formSubmitted = ref(false);
 const alertMessage = ref("");
 const loading = ref(true);
+const currentPage = ref(1);
+const itemsPerPage = 27;
+const totalPages = computed(() => Math.max(1, Math.ceil(myItemsLost.value.length / itemsPerPage)));
+const paginatedItems = computed(() => myItemsLost.value.slice((currentPage.value-1)*itemsPerPage, currentPage.value*itemsPerPage));
 
 const fetchItems = async () => {
   try {
@@ -106,6 +148,13 @@ const handleDelete = async (itemId) => {
     alertMessage.value = "Erro ao deletar o item.";
     submitError.value = true;
   }
+};
+
+const goToPreviousPage = () => {
+  if (currentPage.value > 1) currentPage.value--;
+};
+const goToNextPage = () => {
+  if (currentPage.value < totalPages.value) currentPage.value++;
 };
 
 onMounted(() => fetchItems());
