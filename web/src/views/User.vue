@@ -60,13 +60,12 @@
           Reportar um problema
         </button>
       </a>
-      <router-link to="/" class="w-full flex justify-center">
-        <button
-          class="bg-verde text-white w-full md:w-[70%] lg:w-[40%] font-medium py-4 rounded-full hover:scale-110 transition-transform duration-300 text-center text-lg lg:text-xl"
-        >
-          Sair da Conta
-        </button>
-      </router-link>
+      <button
+        @click="handleLogout"
+        class="bg-verde text-white w-full md:w-[70%] lg:w-[40%] font-medium py-4 rounded-full hover:scale-110 transition-transform duration-300 text-center text-lg lg:text-xl"
+      >
+        Sair da Conta
+      </button>
     </div>
 
     <div class="h-16 lg:h-24"></div>
@@ -84,6 +83,7 @@ import { ref, onMounted } from "vue";
 import api from "../services/api";
 import MainMenu from "../components/Main-Menu.vue";
 import Alert from "@/components/Alert.vue";
+import { useRouter } from "vue-router";
 
 const user = ref({
   foto: "",
@@ -95,6 +95,7 @@ const user = ref({
 });
 const alertMessage = ref("");
 const submitError = ref(false);
+const router = useRouter();
 
 async function fetchUserData() {
   try {
@@ -109,9 +110,23 @@ async function fetchUserData() {
     };
   } catch (error) {
     console.error("Erro ao carregar dados do usuário:", error);
-    alertMessage = "Erro ao carregar dados do usuário.";
-    submitError = true;
+    alertMessage.value = "Erro ao carregar dados do usuário.";
+    submitError.value = true;
   }
+}
+
+async function handleLogout() {
+  try {
+    await api.post("/logout/");
+  } catch (e) {
+  }
+  // Limpa todos os cookies (incluindo tokens)
+  document.cookie.split(";").forEach((c) => {
+    document.cookie = c
+      .replace(/^ +/, "")
+      .replace(/=.*/, "=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/");
+  });
+  router.replace({ name: "Login" });
 }
 
 onMounted(fetchUserData);

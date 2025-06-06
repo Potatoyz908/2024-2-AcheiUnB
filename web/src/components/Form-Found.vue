@@ -175,6 +175,7 @@
           v-model="item.foundDate"
           type="date"
           name="foundDate"
+          :max="today"
         />
       </div>
 
@@ -279,6 +280,7 @@ export default {
       item: new Item(),
       foundTime: "",
       foundDate: "",
+      today: new Date().toISOString().split("T")[0],
       previews: [],
       imagesToRemove: [],
       submitError: false,
