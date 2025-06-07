@@ -14,6 +14,17 @@
     >
       <img src="../assets/icons/trash.svg" alt="Excluir" />
     </button>
+    
+    <button
+      v-if="isMyItem"
+      class="absolute p-1 bottom-2 border-2 border-azul right-12 w-7 h-7 bg-white flex items-center justify-center text-xs rounded-full cursor-pointer"
+      @click.stop="emit('edit', id)"
+      title="Editar"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-azul">
+        <path d="M11.5 4.5L14 2L12 0L9.5 2.5M11.5 4.5L4.5 11.5L2 14L0 12L2.5 9.5M11.5 4.5L9.5 2.5M2.5 9.5L9.5 2.5" />
+      </svg>
+    </button>
 
     <Teleport to="body">
       <div
@@ -49,11 +60,11 @@
     <div class="h-[2px] w-1/4 bg-laranja mt-4"></div>
 
     <!--textos-->
-    <div class="flex flex-col">
+    <div class="flex flex-col" :class="{'pr-14': isMyItem}">
       <div class="text-azul font-bold font-inter mt-1 truncate">{{ name }}</div>
-      <div class="flex items-start justify-start">
-        <img src="../assets/icons/locale.svg" alt="" class="w-5 h-5 mr-1" />
-        <span class="text-azul font-inter text-md font-medium">{{ location }}</span>
+      <div class="flex items-start justify-start overflow-hidden">
+        <img src="../assets/icons/locale.svg" alt="" class="w-5 h-5 mr-1 flex-shrink-0" />
+        <span class="text-azul font-inter text-md font-medium truncate">{{ location }}</span>
       </div>
     </div>
 
@@ -87,7 +98,7 @@ const props = defineProps({
   },
 });
 
-const emit = defineEmits(["delete"]);
+const emit = defineEmits(["delete", "edit"]);
 const router = useRouter();
 const showConfirmModal = ref(false);
 const selectedItemId = ref(null);

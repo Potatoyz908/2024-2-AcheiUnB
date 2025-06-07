@@ -43,6 +43,7 @@
       :image="item.image_urls[0] || NotAvailableImage"
       :isMyItem="true"
       @delete="confirmDelete"
+      @edit="handleEdit"
     />
   </div>
 
@@ -94,6 +95,7 @@
 
 <script setup>
 import { ref, onMounted, computed } from "vue";
+import { useRouter } from "vue-router";
 import { fetchMyItemsFound, deleteItem } from "@/services/apiItems";
 import { formatTime } from "@/utils/dateUtils";
 import MainMenu from "../components/Main-Menu.vue";
@@ -102,6 +104,8 @@ import ItemCard from "@/components/Item-Card.vue";
 import Logo from "@/components/Logo.vue";
 import NotAvailableImage from "@/assets/images/not-available.png";
 import EmptyState from "@/components/Empty-State-User.vue";
+
+const router = useRouter();
 
 const myItemsFound = ref([]);
 const submitError = ref(false);
@@ -153,6 +157,10 @@ const goToPreviousPage = () => {
 };
 const goToNextPage = () => {
   if (currentPage.value < totalPages.value) currentPage.value++;
+};
+
+const handleEdit = (itemId) => {
+  router.push(`/edit-item/${itemId}`);
 };
 
 onMounted(() => fetchItems());
