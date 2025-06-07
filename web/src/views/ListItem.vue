@@ -162,11 +162,41 @@
     <button
       v-else-if="currentUser?.id === item.user_id"
       class="bg-red-500 text-white w-full md:w-[70%] lg:w-[40%] font-medium py-4 rounded-full hover:scale-110 transition-transform duration-300 text-center text-lg lg:text-xl"
-      @click="confirmDelete(item.id)"
+      @click="openDeleteModal"
     >
       Excluir meu item
     </button>
   </div>
+
+  <Teleport to="body">
+    <div
+      v-if="showDeleteModal"
+      class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50"
+    >
+      <div
+        class="bg-azul p-6 rounded-lg shadow-lg w-full max-w-sm sm:max-w-md lg:max-w-lg text-center relative"
+        @click.stop
+      >
+        <p class="text-white font-inter text-lg">
+          Você realmente deseja excluir este item do AcheiUnB?
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center mt-4 gap-4">
+          <button
+            class="bg-red-500 text-white font-inter px-4 py-2 rounded-md hover:bg-red-600 transition w-full sm:w-auto"
+            @click="handleDeleteConfirmed"
+          >
+            Excluir
+          </button>
+          <button
+            class="bg-white font-inter px-4 py-2 rounded-md hover:bg-gray-200 transition w-full sm:w-auto"
+            @click="closeDeleteModal"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    </div>
+  </Teleport>
 
   <div class="fixed bottom-0 w-full">
     <MainMenu :activeIcon="itemStatus === 'found' ? 'found' : 'lost'" />
@@ -435,6 +465,31 @@ const submitReport = async () => {
     submitError.value = true;
   } finally {
     isReportSubmitting.value = false;
+  }
+};
+
+const showDeleteModal = ref(false);
+
+const openDeleteModal = () => {
+  showDeleteModal.value = true;
+  document.body.style.overflow = "hidden";
+};
+
+const closeDeleteModal = () => {
+  showDeleteModal.value = false;
+  document.body.style.overflow = "";
+};
+
+const handleDeleteConfirmed = async () => {
+  try {
+    await deleteItem(item.value.id);
+    closeDeleteModal();
+    router.push(`/${itemStatus.value}`);
+  } catch (error) {
+    closeDeleteModal();
+    console.error("Erro ao excluir item:", error);
+    alertMessage.value = "Erro ao excluir item.";
+    submitError.value = true;
   }
 };
 

@@ -265,7 +265,7 @@
   <Alert
     v-if="formSubmitted"
     type="success"
-    message="Item publicado com sucesso"
+    :message="editMode ? 'Item editado com sucesso' : 'Item publicado com sucesso'"
     @closed="formSubmitted = false"
   />
 </template>
@@ -1185,8 +1185,24 @@ export default {
   mounted() {
     if (this.editMode && this.existingItem) {
       this.item = Object.assign(new Item(), this.existingItem);
-
       this.previews.push(...this.existingItem.image_urls);
+
+      if (this.item.category) {
+        const cat = this.categories.find(c => c.category_id == this.item.category || c.id == this.item.category);
+        if (cat) this.searchCategory = cat.name;
+      }
+      if (this.item.location) {
+        const loc = this.locations.find(l => l.location_id == this.item.location || l.id == this.item.location);
+        if (loc) this.searchLocation = loc.name;
+      }
+      if (this.item.brand) {
+        const brand = this.brands.find(b => b.brand_id == this.item.brand || b.id == this.item.brand);
+        if (brand) this.searchBrand = brand.name;
+      }
+      if (this.item.color) {
+        const color = this.colors.find(c => c.color_id == this.item.color || c.id == this.item.color);
+        if (color) this.searchColor = color.name;
+      }
 
       if (this.item.found_lost_date) {
         try {
