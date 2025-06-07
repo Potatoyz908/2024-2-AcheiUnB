@@ -36,7 +36,7 @@
           viewBox="0 0 24 24"
           stroke-width="1.5"
           stroke="currentColor"
-          class="size-10 text-azul hover:text-laranja transition duration-200 cursor-pointer"
+          class="size-10 text-azul hover:text-laranja transition duration-200 cursor-pointer hover:scale-125"
           @click="goToPreviousPage"
         >
           <path
@@ -54,7 +54,7 @@
           viewBox="0 0 24 24"
           stroke-width="1.5"
           stroke="currentColor"
-          class="size-10 text-azul hover:text-laranja transition duration-200 cursor-pointer"
+          class="size-10 text-azul hover:text-laranja transition duration-200 cursor-pointer hover:scale-125"
           @click="goToNextPage"
         >
           <path
