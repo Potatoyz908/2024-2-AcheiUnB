@@ -261,7 +261,7 @@
   <Alert
     v-if="formSubmitted"
     type="success"
-    message="Item publicado com sucesso"
+    :message="editMode ? 'Item editado com sucesso' : 'Item publicado com sucesso'"
     @closed="formSubmitted = false"
   />
 </template>
