@@ -1301,7 +1301,20 @@ export default {
         return;
       }
 
+      // Validação para data futura
       if (this.item.foundDate) {
+        const selectedDate = new Date(this.item.foundDate);
+        const currentDate = new Date();
+        // Remove o horário para comparar apenas as datas
+        currentDate.setHours(0, 0, 0, 0);
+        
+        if (selectedDate > currentDate) {
+          this.alertMessage = "Ops! Não é possível selecionar uma data no futuro.";
+          this.submitError = true;
+          this.isSubmitting = false;
+          return;
+        }
+        
         const formattedFoundLostDate = this.formatFoundLostDate();
         form.setFieldValue("found_lost_date", formattedFoundLostDate);
       }
