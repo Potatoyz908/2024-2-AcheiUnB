@@ -133,7 +133,6 @@ const fetchItems = async () => {
   loading.value = false;
 };
 
-// Função para buscar o usuário atual
 async function fetchCurrentUser() {
   try {
     const response = await api.get(`/auth/user/`);
@@ -143,7 +142,6 @@ async function fetchCurrentUser() {
   }
 }
 
-// Função para navegar até o próprio perfil
 function viewMyProfile() {
   if (!currentUser.value?.id) return;
   router.push({ name: 'UserProfile', params: { id: currentUser.value.id } });
