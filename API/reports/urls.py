@@ -8,4 +8,5 @@ router.register(r"reports", ReportViewSet, basename="report")
 
 urlpatterns = [
     path("", include(router.urls)),
+    path("user/", ReportViewSet.as_view({"post": "report_user"}), name="report-user"),
 ]
