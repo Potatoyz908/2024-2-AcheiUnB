@@ -59,7 +59,7 @@ export default {
   transform: translateX(70px);
 }
 
-@media (max-width: 769px) and (min-width: 400px) {
+@media (max-width: 769px) and (min-width: 360px) {
   button {
     width: 16rem !important;
     height: 4rem !important;
@@ -84,7 +84,7 @@ export default {
   .lg\:block { display: block !important; }
   .lg\:hidden { display: none !important; }
 }
-@media (max-width: 399px) {
+@media (max-width: 359px) {
   button {
     width: 64px !important;
     height: 64px !important;
