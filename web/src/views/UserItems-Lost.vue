@@ -12,11 +12,13 @@
 
     <h1 class="text-2xl font-bold absolute left-1/2 transform -translate-x-1/2">Meus Itens</h1>
 
-    <button>
-      <router-link to="/about" class="no-underline text-white">
-        <Logo class="pr-4" sizeClass="text-2xl" />
-      </router-link>
-    </button>
+    <div class="flex items-center gap-4">
+      <button>
+        <router-link to="/about" class="no-underline text-white">
+          <Logo class="pr-4" sizeClass="text-2xl" />
+        </router-link>
+      </button>
+    </div>
   </div>
 
   <div class="pb-8 pt-24">
@@ -48,7 +50,7 @@
   </div>
 
   <div v-if="myItemsLost.length" class="flex w-full justify-center pb-24">
-    <div class="flex gap-4 z-0 items-center">
+    <div class="flex gap-4 z-0 h-20 items-center">
       <svg
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
@@ -85,13 +87,12 @@
     </div>
   </div>
 
-  <ButtonAdd />
-
   <div class="fixed bottom-0 w-full">
     <MainMenu activeIcon="search" />
   </div>
 
   <Alert v-if="submitError" type="error" :message="alertMessage" @closed="submitError = false" />
+  <Alert v-if="submitSuccess" type="success" :message="alertMessage" @closed="submitSuccess = false" />
 </template>
 
 <script setup>
@@ -101,23 +102,24 @@ import { fetchMyItemsLost, deleteItem } from "@/services/apiItems";
 import { formatTime } from "@/utils/dateUtils";
 import MainMenu from "../components/Main-Menu.vue";
 import SubMenu from "../components/Sub-Menu-UserLost.vue";
-import ItemCard from "@/components/Item-Card.vue";
-import Alert from "@/components/Alert.vue";
 import Logo from "@/components/Logo.vue";
-import NotAvailableImage from "@/assets/images/not-available.png";
+import ItemCard from "@/components/Item-Card.vue";
 import EmptyState from "@/components/Empty-State-User.vue";
+import Alert from "@/components/Alert.vue";
+import NotAvailableImage from "@/assets/images/not-available.png";
+import api from "@/services/api";
 
 const router = useRouter();
-
 const myItemsLost = ref([]);
 const submitError = ref(false);
-const formSubmitted = ref(false);
+const submitSuccess = ref(false);
 const alertMessage = ref("");
 const loading = ref(true);
 const currentPage = ref(1);
 const itemsPerPage = 27;
 const totalPages = computed(() => Math.max(1, Math.ceil(myItemsLost.value.length / itemsPerPage)));
 const paginatedItems = computed(() => myItemsLost.value.slice((currentPage.value-1)*itemsPerPage, currentPage.value*itemsPerPage));
+const currentUser = ref(null);
 
 const fetchItems = async () => {
   try {
@@ -131,25 +133,31 @@ const fetchItems = async () => {
   loading.value = false;
 };
 
+// Função para buscar o usuário atual
+async function fetchCurrentUser() {
+  try {
+    const response = await api.get(`/auth/user/`);
+    currentUser.value = response.data;
+  } catch (error) {
+    console.error("Erro ao buscar usuário:", error);
+  }
+}
+
+// Função para navegar até o próprio perfil
+function viewMyProfile() {
+  if (!currentUser.value?.id) return;
+  router.push({ name: 'UserProfile', params: { id: currentUser.value.id } });
+}
+
 const confirmDelete = async (itemId) => {
   try {
     await deleteItem(itemId);
     myItemsLost.value = myItemsLost.value.filter((item) => item.id !== itemId);
+    alertMessage.value = "Item excluído com sucesso.";
+    submitSuccess.value = true;
   } catch (error) {
     console.error("Erro ao excluir item:", error);
-    alertMessage = "Erro ao excluir item.";
-    submitError = true;
-  }
-};
-
-const handleDelete = async (itemId) => {
-  try {
-    await deleteItem(itemId);
-    myItemsLost.value = myItemsLost.value.filter((item) => item.id !== itemId);
-    alertMessage.value = "Item deletado com sucesso.";
-    formSubmitted.value = true;
-  } catch (error) {
-    alertMessage.value = "Erro ao deletar o item.";
+    alertMessage.value = "Erro ao excluir item.";
     submitError.value = true;
   }
 };
@@ -165,7 +173,10 @@ const handleEdit = (itemId) => {
   router.push(`/edit-item/${itemId}`);
 };
 
-onMounted(() => fetchItems());
+onMounted(async () => {
+  await fetchCurrentUser();
+  fetchItems();
+});
 </script>
 
 <style scoped></style>
