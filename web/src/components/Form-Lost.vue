@@ -1264,11 +1264,9 @@ export default {
         return;
       }
 
-      // Validação para data futura
       if (this.item.lostDate) {
         const selectedDate = new Date(this.item.lostDate);
         const currentDate = new Date();
-        // Remove o horário para comparar apenas as datas
         currentDate.setHours(0, 0, 0, 0);
         
         if (selectedDate > currentDate) {
