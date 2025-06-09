@@ -26,7 +26,6 @@ class ReportSerializer(serializers.ModelSerializer):
                 {"categories": f"Categoria inválida: {categories}"}
             )
 
-        # Validações específicas para cada tipo de denúncia
         if report_type == "item" and not data.get("item"):
             raise serializers.ValidationError(
                 {"item": "Campo obrigatório para denúncia de item."}
