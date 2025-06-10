@@ -14,6 +14,9 @@ from .views import (
     TestUserView,
     UserDetailView,
     UserListView,
+    UserProfileView,
+    UserRecentItemsView,
+    UserStatsView,
     UserValidateView,
 )
 
@@ -31,8 +34,15 @@ urlpatterns = [
     path("items/lost/my-items/", MyItemsLostView.as_view(), name="my-lost-items"),
     path("items/found/my-items/", MyItemsFoundView.as_view(), name="my-found-items"),
     path("", include(router.urls)),
-    path("auth/validate/", UserValidateView.as_view(), name="useer-detail"),
-    path("auth/user/", UserDetailView.as_view(), name="useer-detail"),
+    path("auth/validate/", UserValidateView.as_view(), name="user-validate"),
+    path("auth/user/", UserDetailView.as_view(), name="user-detail"),
+    path("auth/user-profile/<int:user_id>/", UserProfileView.as_view(), name="user-profile"),
+    path("auth/user-stats/<int:user_id>/", UserStatsView.as_view(), name="user-stats"),
+    path(
+        "items/user/<int:user_id>/recent/",
+        UserRecentItemsView.as_view(),
+        name="user-recent-items",
+    ),
     path("test-user/", TestUserView.as_view(), name="test_user"),
     path("users/", UserListView.as_view(), name="user-list"),
     path("users/<int:user_id>/", UserListView.as_view(), name="user-detail"),

@@ -23,11 +23,29 @@ CHAT_REPORT_CATEGORIES = [
     "Outros",
 ]
 
+USER_REPORT_CATEGORIES = [
+    "Ofensa/Abuso",
+    "Assédio",
+    "Comportamento suspeito",
+    "Mensagens inadequadas",
+    "Perfil inapropriado",
+    "Imagem inadequada",
+    "Informações falsas",
+    "Golpe",
+    "Spam",
+    "Item falso",
+    "Item ilegal/proibido",
+    "Roubo de identidade",
+    "Uso indevido da plataforma",
+    "Outros",
+]
+
 
 class Report(models.Model):
     REPORT_TYPE_CHOICES = [
         ("item", "Item"),
         ("chat", "Chat"),
+        ("user", "User"),
     ]
     STATUS_CHOICES = [
         ("open", "Aberta"),

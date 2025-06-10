@@ -10,7 +10,8 @@
     <button
       v-if="isMyItem"
       class="absolute p-1 bottom-2 border-2 border-laranja right-2 w-7 h-7 bg-white flex items-center justify-center text-xs rounded-full cursor-pointer"
-      @click.stop="showConfirmModal = true"
+      @click.stop="openModal(id)"
+      title="Excluir"
     >
       <img src="../assets/icons/trash.svg" alt="Excluir" />
     </button>
@@ -128,6 +129,7 @@ const closeModal = () => {
 const confirmDelete = () => {
   emit("delete", props.id);
   showConfirmModal.value = false;
+  closeModal();
 };
 </script>
 
