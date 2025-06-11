@@ -1,7 +1,12 @@
 <template>
   <router-link to="/register-lost">
     <button
-      class="fixed right-0 bottom-28 rounded-l-xl custom-360:w-40 custom-360:h-12 w-48 h-14 sm:w-64 sm:h-16 md:w-80 md:h-20 cursor-pointer flex items-center border border-laranja bg-laranja group hover:bg-laranja active:bg-laranja active:border-laranja"
+      class="fixed right-0 bottom-28 rounded-l-xl custom-360:w-40 custom-360:h-12 w-48 h-14 sm:w-64 sm:h-16 md:w-80 md:h-20 cursor-pointer flex items-center border border-laranja bg-laranja group hover:bg-laranja active:bg-laranja active:border-laranja
+      w-[220px] h-14 text-lg gap-2
+      sm:w-[180px] sm:h-12 sm:text-base
+      min-[400px]:w-[180px] min-[400px]:h-12 min-[400px]:text-base
+      min-[360px]:w-[140px] min-[360px]:h-10 min-[360px]:text-sm
+      max-[400px]:w-14 max-[400px]:h-14 max-[400px]:text-2xl"
       :class="{ visible: isVisible, invisible: !isVisible }"
     >
       <span
@@ -54,7 +59,7 @@ export default {
   transform: translateX(70px);
 }
 
-@media (max-width: 769px) and (min-width: 400px) {
+@media (max-width: 769px) and (min-width: 360px) {
   button {
     width: 16rem !important;
     height: 4rem !important;
@@ -79,33 +84,28 @@ export default {
   .lg\:block { display: block !important; }
   .lg\:hidden { display: none !important; }
 }
-@media (max-width: 399px) {
+@media (max-width: 359px) {
   button {
     width: 64px !important;
     height: 64px !important;
     font-size: 2.2rem !important;
     padding: 0 !important;
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
   }
   .text-azul, .font-inter, .font-semibold, .text-xs, .sm\:text-lg, .ml-4, .sm\:ml-12 {
     display: none !important;
   }
   .absolute.right-0 {
     position: static !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
     width: 100% !important;
     height: 100% !important;
-    display: flex !important;
-    align-items: center !important;
     justify-content: center !important;
+    align-items: center !important;
   }
   img {
     margin: 0 !important;
     width: 2.2rem !important;
     height: 2.2rem !important;
-    display: block !important;
   }
 }
 </style>
