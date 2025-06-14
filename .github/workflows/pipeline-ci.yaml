@@ -4,7 +4,7 @@ on:
   push:
     branches: 
       - main
-      - 213-tasktestes-configurar-testes-estáticos-com-linter
+      - 278-/feat/security-implementação-de-sastsca-na-pipeline-de-ci
   pull_request:
     branches: 
       - main
