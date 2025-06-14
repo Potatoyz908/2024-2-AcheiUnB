@@ -93,7 +93,7 @@ jobs:
   # Novo estágio 
   security-scan:
     runs-on: ubuntu-latest
-    needs: test # Garante que o estágio de segurança só roda após os testes
+    needs: test 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -119,16 +119,34 @@ jobs:
           echo "Bandit scan completed. Report generated at bandit_security_report.html"
         continue-on-error: true # Permite que o workflow continue mesmo se o Bandit encontrar issues e retornar um código de erro
 
-      - name: Run Safety CLI (SCA)
+      - name: Run Safety CLI (SCA) - Authentication and Scan (via Action)
+        uses: pyupio/safety-action@v1
+        with:
+          api-key: ${{ secrets.SAFETY_API_KEY }} # Passa a API Key diretamente para a Action
+          args: "--full-report --output-format html" # Ação roda o scan e imprime HTML para stdout
+        continue-on-error: true # Permite que o workflow continue mesmo que a Action encontre vulnerabilidades
+
+      - name: Generate Safety CLI HTML Report File (Post-Authentication)
         env:
-          # É crucial que o Safety CLI possa autenticar.
-          # A chave de API é a forma de autenticação sem interação no navegador.
           SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
         run: |
-          # A Saída do Safety CLI é redirecionada para um arquivo HTML
-          safety scan -r API/requirements.txt --full-report --output-format html > safety_security_report.html
-          echo "Safety CLI scan completed. Report generated at safety_security_report.html"
-        continue-on-error: true # Permite que o workflow continue mesmo se o Safety encontrar issues e retornar um código de erro
+          echo "Generating Safety CLI HTML report file..."
+          safety scan -r API/requirements.txt --full-report --output-format html --ci < /dev/null > safety_security_report.html
+          echo "Safety CLI report file generated at safety_security_report.html"
+        continue-on-error: true
+
+      # NOVO PASSO DE DEBUG
+      - name: Verify Safety HTML Report Content
+        run: |
+          echo "Verifying size and content of safety_security_report.html..."
+          ls -lh safety_security_report.html # Lista o arquivo e seu tamanho
+          cat safety_security_report.html | head -n 20 # Exibe as primeiras 20 linhas do arquivo
+          if [ -s safety_security_report.html ]; then
+            echo "File safety_security_report.html is not empty."
+          else
+            echo "WARNING: File safety_security_report.html is empty or does not exist."
+          fi
+        continue-on-error: true # Continua mesmo que a verificação falhe
 
       - name: Upload Security Reports
         uses: actions/upload-artifact@v4
@@ -137,6 +155,4 @@ jobs:
           path: |
             bandit_security_report.html
             safety_security_report.html
-          retention-days: 5 # Define por quantos dias os artefatos serão mantidos
-        
-              
+          retention-days: 5    
