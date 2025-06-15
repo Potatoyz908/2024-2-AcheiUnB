@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "channels",
     "chat",
+    "reports",
     "corsheaders",
     "django_celery_beat",
     "drf_yasg",
@@ -117,7 +118,7 @@ SOCIALACCOUNT_PROVIDERS = {
 MICROSOFT_REDIRECT_URI = "http://localhost:8000/accounts/microsoft/login/callback/"
 SOCIALACCOUNT_QUERY_EMAIL = True
 SOCIALACCOUNT_PROVIDERS["microsoft"]["AUTH_PARAMS"] = {
-    "domain": "alunos.unb.br",
+    "domain_hint": "unb.br",
 }
 SOCIALACCOUNT_PROVIDERS["microsoft"]["SCOPE"] = [
     "email",

@@ -28,15 +28,15 @@
       />
     </div>
 
-    <div v-if="lostItems.length" class="flex w-full justify-start sm:justify-center">
-      <div class="ml-24 transform -translate-x-1/2 flex gap-4 z-10">
+    <div v-if="lostItems.length" class="flex w-full justify-center pb-24">
+      <div class="flex gap-4 z-0 items-center">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
           stroke-width="1.5"
           stroke="currentColor"
-          class="size-10 text-azul hover:text-laranja transition duration-200 cursor-pointer"
+          class="size-10 text-azul hover:text-laranja transition duration-200 cursor-pointer hover:scale-125"
           @click="goToPreviousPage"
         >
           <path
@@ -45,14 +45,16 @@
             d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
           />
         </svg>
-
+        <span class="font-medium text-base text-azul select-none min-w-[30px] text-center">
+          {{ currentPage }} / {{ totalPages }}
+        </span>
         <svg
           xmlns="http://www.w3.org/2000/svg"
           fill="none"
           viewBox="0 0 24 24"
           stroke-width="1.5"
           stroke="currentColor"
-          class="size-10 text-azul hover:text-laranja transition duration-200 cursor-pointer"
+          class="size-10 text-azul hover:text-laranja transition duration-200 cursor-pointer hover:scale-125"
           @click="goToNextPage"
         >
           <path
@@ -101,9 +103,10 @@ const fetchItems = async (page = 1) => {
       location_name: activeLocation,
     });
 
-    if (response && response.results && response.count !== undefined) {
+    if (response && response.count !== undefined) {
       lostItems.value = response.results;
       totalPages.value = Math.ceil(response.count / 27);
+      currentPage.value = page; // Atualiza currentPage somente após resposta bem-sucedida
     } else {
       console.error("Resposta da API inválida:", response);
     }
@@ -115,16 +118,14 @@ const fetchItems = async (page = 1) => {
 };
 
 const goToPreviousPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value -= 1;
-    fetchItems(currentPage.value);
+  if (currentPage.value > 1 && !loading.value) {
+    fetchItems(currentPage.value - 1);
   }
 };
 
 const goToNextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value += 1;
-    fetchItems(currentPage.value);
+  if (currentPage.value < totalPages.value && !loading.value) {
+    fetchItems(currentPage.value + 1);
   }
 };
 

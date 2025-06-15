@@ -6,6 +6,7 @@ import Found from "../views/Found.vue";
 import RegisterLost from "../views/Register-Lost.vue";
 import RegisterFound from "../views/Register-Found.vue";
 import User from "../views/User.vue";
+import UserProfile from "../views/UserProfile.vue";
 import Chats from "../views/Chats.vue";
 import ListItem from "../views/ListItem.vue";
 import UserItemsLost from "../views/UserItems-Lost.vue";
@@ -64,6 +65,13 @@ const routes = [
     path: "/user",
     name: "User",
     component: User,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/user-profile/:id",
+    name: "UserProfile",
+    component: UserProfile,
+    props: true,
     meta: { requiresAuth: true },
   },
   {
