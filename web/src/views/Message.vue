@@ -253,6 +253,10 @@ const fetchMessages = async () => {
     messages.value = response.data.results || response.data;
     
     markMessagesAsRead();
+    
+    setTimeout(() => {
+      scrollToBottom();
+    }, 100);
   } catch (error) {
     console.error("Erro ao buscar mensagens:", error);
   }
@@ -426,6 +430,11 @@ onMounted(async () => {
   await fetchChatroomData();
   await fetchMessages();
   connectWebSocket();
+  
+  // Garantir rolagem para o final mesmo após todas as operações assíncronas
+  setTimeout(() => {
+    scrollToBottom();
+  }, 300);
   
   // Configurar atualização periódica do status das mensagens (a cada 5 segundos)
   // Isso serve como uma segurança caso o websocket não funcione
