@@ -38,8 +38,6 @@ def send_match_notification(to_email, item_name, matches):
 def send_welcome_email(user_email, user_name):
     """Task assíncrona para enviar o e-mail de boas-vindas."""
     try:
-        # user_name já é tratado no sinal para usar last_name
-        # se first_name não estiver disponível
         subject = "Bem-vindo ao AcheiUnB!"
         html_message = render_to_string("emails/welcome.html", {"name": user_name})
         plain_message = strip_tags(html_message)
@@ -129,7 +127,6 @@ def delete_old_items_and_chats():
 @shared_task
 def send_ban_notification_email(user_email, first_name, last_name):
     subject = "Notificação de Banimento - AcheiUnB"
-    # first_name e last_name já são tratados no sinal
     user_full_name = first_name
     if last_name:
         user_full_name += f" {last_name}"
@@ -155,7 +152,6 @@ def send_ban_notification_email(user_email, first_name, last_name):
 @shared_task
 def send_unban_notification_email(user_email, first_name, last_name):
     subject = "Sua conta foi desbloqueada - AcheiUnB"
-    # first_name e last_name já são tratados no sinal
     user_full_name = first_name
     if last_name:
         user_full_name += f" {last_name}"

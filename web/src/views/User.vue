@@ -39,8 +39,11 @@
 
       <div class="px-6 py-4 text-center">
         <h2 class="text-2xl md:text-3xl font-bold text-azul">
-          {{
-            user.first_name || user.last_name ? user.first_name + " " + user.last_name : user.username
+          {{ 
+            user.first_name && user.last_name ? user.first_name + " " + user.last_name : 
+            user.first_name ? user.first_name : 
+            user.last_name ? user.last_name : 
+            user.username
           }}
         </h2>
         <p class="text-base md:text-lg text-gray-600 mt-2">

@@ -62,7 +62,10 @@
       <!-- User info -->
       <h1 class="text-xl lg:text-3xl font-bold text-azul mt-4 lg:mt-6">
         {{
-          user.first_name || user.last_name ? `${user.first_name} ${user.last_name}` : user.username
+          user.first_name && user.last_name ? `${user.first_name} ${user.last_name}` : 
+          user.first_name ? user.first_name : 
+          user.last_name ? user.last_name : 
+          user.username
         }}
       </h1>
       <p class="text-sm lg:text-lg text-cinza3">

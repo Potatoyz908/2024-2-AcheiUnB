@@ -116,7 +116,13 @@
               />
               <div class="ml-4">
                 <h3 class="text-sm font-semibold text-azul">Postado por:</h3>
-                <p class="text-gray-800 font-medium">{{ userInfo.first_name || userInfo.username }}</p>
+                <p class="text-gray-800 font-medium">{{ 
+                  userInfo.first_name && userInfo.last_name ? 
+                    `${userInfo.first_name} ${userInfo.last_name}` : 
+                  userInfo.first_name ? userInfo.first_name : 
+                  userInfo.last_name ? userInfo.last_name : 
+                  userInfo.username 
+                }}</p>
               </div>
             </div>
             <div class="ml-auto">
@@ -196,7 +202,13 @@
             />
             <div class="ml-4">
               <h3 class="text-sm font-semibold text-azul">Postado por:</h3>
-              <p class="text-gray-800 font-medium">{{ userInfo.first_name || userInfo.username }}</p>
+              <p class="text-gray-800 font-medium">{{ 
+                userInfo.first_name && userInfo.last_name ? 
+                  `${userInfo.first_name} ${userInfo.last_name}` : 
+                userInfo.first_name ? userInfo.first_name : 
+                userInfo.last_name ? userInfo.last_name : 
+                userInfo.username 
+              }}</p>
             </div>
           </div>
           <div class="ml-auto">

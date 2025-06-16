@@ -6,7 +6,6 @@ from .models import ChatRoom, Message
 
 
 class MessageSerializer(serializers.ModelSerializer):
-    # Usa last_name se first_name não estiver disponível
     sender_username = serializers.SerializerMethodField()
 
     def get_sender_username(self, obj):
