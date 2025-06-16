@@ -36,7 +36,9 @@ def send_welcome_email_on_first_login(sender, request, user, **kwargs):
 
     if not profile.welcome_email_sent:
         print("Primeiro login detectado. Enviando e-mail de boas-vindas.")
-        send_welcome_email.delay(user.email, user.first_name)
+        # Usa last_name se first_name não estiver disponível
+        user_name = user.first_name or user.last_name or user.username
+        send_welcome_email.delay(user.email, user_name)
         profile.welcome_email_sent = True
         profile.save()
     else:
@@ -70,9 +72,18 @@ def notify_user_ban_status_change(sender, instance, **kwargs):
 
     if previous:
         if previous.is_banned != instance.is_banned:
-            if instance.is_banned:
-                send_ban_notification_email.delay(user.email, user.first_name, user.last_name)
+            # Usa last_name como nome se first_name não estiver disponível
+            if user.first_name:
+                first_name = user.first_name
+                last_name = user.last_name or ""
+            elif user.last_name:
+                first_name = user.last_name
+                last_name = ""
             else:
-                send_unban_notification_email.delay(
-                    user.email, user.first_name, user.last_name
-                )
+                first_name = user.username
+                last_name = ""
+
+            if instance.is_banned:
+                send_ban_notification_email.delay(user.email, first_name, last_name)
+            else:
+                send_unban_notification_email.delay(user.email, first_name, last_name)

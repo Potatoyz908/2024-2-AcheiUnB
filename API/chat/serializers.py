@@ -6,7 +6,11 @@ from .models import ChatRoom, Message
 
 
 class MessageSerializer(serializers.ModelSerializer):
-    sender_username = serializers.ReadOnlyField(source="sender.first_name")
+    # Usa last_name se first_name não estiver disponível
+    sender_username = serializers.SerializerMethodField()
+
+    def get_sender_username(self, obj):
+        return obj.sender.first_name or obj.sender.last_name or obj.sender.username
 
     class Meta:
         model = Message
@@ -16,10 +20,24 @@ class MessageSerializer(serializers.ModelSerializer):
 
 class ChatRoomSerializer(serializers.ModelSerializer):
     messages = MessageSerializer(many=True, read_only=True)
-    participant_1_username = serializers.ReadOnlyField(source="participant_1.first_name")
-    participant_2_username = serializers.ReadOnlyField(source="participant_2.first_name")
+    participant_1_username = serializers.SerializerMethodField()
+    participant_2_username = serializers.SerializerMethodField()
     item_id = serializers.IntegerField(required=True)
     item_name = serializers.ReadOnlyField(source="item.name")
+
+    def get_participant_1_username(self, obj):
+        return (
+            obj.participant_1.first_name
+            or obj.participant_1.last_name
+            or obj.participant_1.username
+        )
+
+    def get_participant_2_username(self, obj):
+        return (
+            obj.participant_2.first_name
+            or obj.participant_2.last_name
+            or obj.participant_2.username
+        )
 
     class Meta:
         model = ChatRoom

@@ -73,9 +73,16 @@ class UserListView(View):
             profile = getattr(user, "profile", None)
             profile_picture = profile.profile_picture if profile else None
 
+            first_name = user.first_name
+            last_name = user.last_name
+            if not first_name and last_name:
+                first_name = last_name
+                last_name = ""
+
             user_data = {
                 "id": user.id,
-                "first_name": user.first_name,
+                "first_name": first_name or user.username,
+                "last_name": last_name,
                 "email": user.email,
                 "foto": profile_picture,
             }
@@ -85,7 +92,10 @@ class UserListView(View):
         users_data = [
             {
                 "id": user.id,
-                "first_name": user.first_name,
+                "first_name": user.first_name
+                or (user.last_name if not user.first_name else "")
+                or user.username,
+                "last_name": "" if not user.first_name and user.last_name else user.last_name,
                 "email": user.email,
                 "foto": getattr(user.profile, "profile_picture", None),
             }
@@ -391,12 +401,19 @@ class UserDetailView(APIView):
 
         matricula = user.email.split("@")[0] if "@aluno.unb.br" in user.email else None
 
+        # Se não tem first_name e usa last_name como substituto, então limpa last_name
+        first_name = user.first_name
+        last_name = user.last_name
+        if not first_name and last_name:
+            first_name = last_name
+            last_name = ""
+
         user_data = {
             "id": user.id,
             "username": user.username,
             "email": user.email,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
+            "first_name": first_name or user.username,
+            "last_name": last_name,
             "matricula": matricula,
             "foto": foto_url,
         }
@@ -431,7 +448,9 @@ def save_or_update_user(user_data, access_token=None):
             defaults={
                 "username": user_data.get("userPrincipalName").split("@")[0],
                 "first_name": user_data.get("givenName", ""),
-                "last_name": user_data.get("surname", ""),
+                "last_name": user_data.get(
+                    "surname", ""
+                ),  # Já garantimos que o campo last_name é usado corretamente
                 "password": "defaultpassword",
                 "last_login": datetime.now(),
                 "is_superuser": False,
@@ -701,8 +720,12 @@ class UserProfileView(APIView):
                 {
                     "id": user.id,
                     "username": user.username,
-                    "first_name": user.first_name,
-                    "last_name": user.last_name,
+                    "first_name": user.first_name
+                    or (user.last_name if not user.first_name else "")
+                    or user.username,
+                    "last_name": (
+                        "" if not user.first_name and user.last_name else user.last_name
+                    ),
                     "email": (
                         user.email if request.user.id == user_id else ""
                     ),  # Só mostra email para o próprio usuário
