@@ -13,7 +13,7 @@ class MessageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Message
-        fields = ["id", "room", "sender", "sender_username", "content", "timestamp"]
+        fields = ["id", "room", "sender", "sender_username", "content", "timestamp", "is_read"]
         read_only_fields = ["sender"]
 
 
@@ -23,6 +23,23 @@ class ChatRoomSerializer(serializers.ModelSerializer):
     participant_2_username = serializers.SerializerMethodField()
     item_id = serializers.IntegerField(required=True)
     item_name = serializers.ReadOnlyField(source="item.name")
+    unread_count = serializers.SerializerMethodField()
+
+    def get_unread_count(self, obj):
+        """Retorna a quantidade de mensagens não lidas pelo usuário da requisição"""
+        request = self.context.get("request")
+        if not request or not request.user.is_authenticated:
+            return 0
+
+        # Obter o usuário atual
+        current_user = request.user
+
+        # Contar mensagens não lidas (enviadas por outros usuários)
+        return (
+            Message.objects.filter(room=obj, is_read=False)
+            .exclude(sender=current_user)
+            .count()
+        )
 
     def get_participant_1_username(self, obj):
         return (
@@ -48,6 +65,7 @@ class ChatRoomSerializer(serializers.ModelSerializer):
             "participant_2_username",
             "item_id",
             "item_name",
+            "unread_count",
             "created_at",
             "messages",
         ]
