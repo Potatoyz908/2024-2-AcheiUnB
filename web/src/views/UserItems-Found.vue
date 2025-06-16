@@ -87,7 +87,7 @@
   </div>
 
   <div class="fixed bottom-0 w-full">
-    <MainMenu activeIcon="search" />
+    <MainMenu activeIcon="user" />
   </div>
 
   <Alert v-if="submitError" type="error" :message="alertMessage" @closed="submitError = false" />
