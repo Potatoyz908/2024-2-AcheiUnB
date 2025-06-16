@@ -13,9 +13,9 @@
     </div>
   </div>
 
-  <div v-else-if="chatrooms.length" class="pt-32 pb-24">
+  <div v-else-if="sortedChatrooms.length" class="pt-32 pb-24">
     <div
-      v-for="chatroom in chatrooms"
+      v-for="chatroom in sortedChatrooms"
       :key="chatroom.id"
       class="flex items-center px-6 py-5 cursor-pointer transition-all duration-200 hover:bg-gray-200"
     >
@@ -27,7 +27,13 @@
       />
 
       <div class="ml-5 flex-1" @click="openChat(chatroom)">
-        <p class="text-xl font-semibold text-gray-800">{{ chatroom.recipient.name }}</p>
+        <div class="flex items-center justify-between">
+          <p class="text-xl font-semibold text-gray-800">{{ chatroom.recipient.name }}</p>
+          <span v-if="chatroom.unread_count > 0" 
+                class="bg-laranja text-white text-xs font-bold px-2 py-1 rounded-full">
+            {{ chatroom.unread_count }}
+          </span>
+        </div>
         <p class="text-md text-gray-500">Sobre o item: {{ chatroom.item_name }}</p>
       </div>
     </div>
@@ -45,13 +51,14 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import api from "../services/api";
 import ItemHeader from "../components/Item-Header.vue";
 import MainMenu from "../components/Main-Menu.vue";
 import defaultAvatar from "@/assets/images/default-avatar.png";
 import Alert from "@/components/Alert.vue";
+import { io } from "socket.io-client";
 
 const router = useRouter();
 const currentUser = ref(null);
@@ -59,6 +66,15 @@ const chatrooms = ref([]);
 const loadingChats = ref(true);
 const alertMessage = ref("");
 const submitError = ref(false);
+const socket = ref(null);
+
+const sortedChatrooms = computed(() => {
+  return [...chatrooms.value].sort((a, b) => {
+    const dateA = a.last_message_timestamp ? new Date(a.last_message_timestamp) : new Date(0);
+    const dateB = b.last_message_timestamp ? new Date(b.last_message_timestamp) : new Date(0);
+    return dateB - dateA;
+  });
+});
 
 const openChat = (chatroom) => {
   if (!chatroom.id || !chatroom.recipient || !chatroom.item_id) return;
@@ -116,6 +132,19 @@ async function fetchUserChatrooms() {
 
         const userResponse = await api.get(`/users/${otherUserId}/`);
         otherUserFoto = userResponse.data.foto ? userResponse.data.foto : defaultAvatar;
+        
+        let lastMessageTimestamp = chatroom.created_at;
+        try {
+          const messagesResponse = await api.get("/chat/messages/", {
+            params: { room: chatroom.id, limit: 1 }
+          });
+          
+          if (messagesResponse.data.results && messagesResponse.data.results.length > 0) {
+            lastMessageTimestamp = messagesResponse.data.results[0].timestamp;
+          }
+        } catch (err) {
+          console.error(`Erro ao buscar última mensagem do chatroom ${chatroom.id}:`, err);
+        }
 
         chatroomsTemp.push({
           ...chatroom,
@@ -124,6 +153,8 @@ async function fetchUserChatrooms() {
             name: otherUserName,
             foto: otherUserFoto,
           },
+          unread_count: chatroom.unread_count || 0,
+          last_message_timestamp: lastMessageTimestamp
         });
       }
     }
@@ -131,15 +162,104 @@ async function fetchUserChatrooms() {
     chatrooms.value = chatroomsTemp;
   } catch (error) {
     console.error("Erro ao buscar conversas:", error);
-    alertMessage = "Erro ao buscar conversas.";
-    submitError = true;
+    alertMessage.value = "Erro ao buscar conversas.";
+    submitError.value = true;
   } finally {
     loadingChats.value = false;
   }
 }
 
+const connectWebSocket = () => {
+  const WS_URL = import.meta.env.VITE_WS_URL;
+  
+  socket.value = io(WS_URL, {
+    transports: ["websocket"],
+    path: "/socket.io/"
+  });
+
+  socket.value.on("connect", () => {
+    console.log("Socket.IO conectado na lista de chats:", socket.value.id);
+  });
+
+  socket.value.on("receive_message", (data) => {
+    console.log("Nova mensagem recebida na lista de chats:", data);
+    updateChatroomWithNewMessage(data);
+  });
+  
+  socket.value.on("chatlist_update", (data) => {
+    console.log("Atualização da lista de chats:", data);
+    if (data.last_message) {
+      updateChatroomWithNewMessage(data.last_message);
+    }
+  });
+  
+  socket.value.on("message_status_updated", (data) => {
+    console.log("Status de mensagem atualizado na lista de chats:", data);
+    updateUnreadMessageCount(data.chat_id);
+  });
+
+  socket.value.on("disconnect", () => {
+    console.warn("Socket.IO desconectado da lista de chats.");
+  });
+
+  socket.value.on("connect_error", (err) => {
+    console.error("Erro ao conectar no Socket.IO da lista de chats:", err);
+  });
+};
+
+const updateChatroomWithNewMessage = (message) => {
+  if (!message || !message.room) return;
+  
+  const chatroomIndex = chatrooms.value.findIndex(chat => chat.id === message.room);
+  
+  if (chatroomIndex !== -1) {
+    const updatedChatroom = { 
+      ...chatrooms.value[chatroomIndex],
+      last_message_timestamp: message.timestamp
+    };
+    
+    if (message.sender !== currentUser.value?.id) {
+      updatedChatroom.unread_count = (updatedChatroom.unread_count || 0) + 1;
+    }
+    
+    const updatedChatrooms = [...chatrooms.value];
+    updatedChatrooms[chatroomIndex] = updatedChatroom;
+    chatrooms.value = updatedChatrooms;
+  } else {
+    fetchUserChatrooms();
+  }
+};
+
+const updateUnreadMessageCount = async (chatroomId) => {
+  if (!chatroomId) return;
+  
+  try {
+    const response = await api.get(`/chat/chatrooms/${chatroomId}/`);
+    const updatedChatroom = response.data;
+    
+    const chatroomIndex = chatrooms.value.findIndex(chat => chat.id === chatroomId);
+    if (chatroomIndex !== -1) {
+      const updatedChatrooms = [...chatrooms.value];
+      updatedChatrooms[chatroomIndex] = {
+        ...updatedChatrooms[chatroomIndex],
+        unread_count: updatedChatroom.unread_count || 0
+      };
+      chatrooms.value = updatedChatrooms;
+    }
+  } catch (error) {
+    console.error(`Erro ao atualizar contador de mensagens não lidas do chatroom ${chatroomId}:`, error);
+  }
+};
+
 onMounted(() => {
   fetchCurrentUser();
+  connectWebSocket();
+});
+
+onUnmounted(() => {
+  if (socket.value) {
+    socket.value.disconnect();
+  }
 });
 </script>
 
