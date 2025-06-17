@@ -17,42 +17,51 @@
     />
 
     <div ref="messagesContainer" class="relative flex-1 pt-32 pb-24 px-4 overflow-y-auto z-10">
-      <div v-for="message in messages" :key="message.id" class="mb-2 flex">
+      <div v-for="group in groupedMessages" :key="group.date" class="mb-4">
+        <!-- Data separator com estilo de balão WhatsApp -->
+        <div class="flex justify-center mb-3">
+          <div class="bg-gray-200 text-gray-600 text-xs font-medium px-4 py-1.5 rounded-full shadow-sm">
+            {{ group.formattedDate }}
+          </div>
+        </div>
         
-        <div v-if="message.sender === currentUser?.id" class="flex w-full justify-end">
-          <div class="bg-laranja text-white p-3 rounded-2xl max-w-[70%] break-words shadow-md">
-            <p class="text-sm">{{ message.content }}</p>
-            <div class="flex items-center justify-end mt-1">
-              <span v-if="message.is_read" class="text-xs mr-1 text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="inline-block" viewBox="0 0 16 16">
-                  <path d="M8.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L2.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093L8.95 4.992a.252.252 0 0 1 .02-.022zm-.92 5.14.92.92a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 1 0-1.091-1.028L9.477 9.417l-.485-.486-.943 1.179z"/>
-                </svg>
-              </span>
-              <span v-else class="text-xs mr-1 text-white">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="inline-block" viewBox="0 0 16 16">
-                  <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
-                </svg>
-              </span>
-              <span class="text-xs opacity-75">
+        <div v-for="message in group.messages" :key="message.id" class="mb-2 flex">
+          
+          <div v-if="message.sender === currentUser?.id" class="flex w-full justify-end">
+            <div class="bg-laranja text-white p-3 rounded-2xl max-w-[70%] break-words shadow-md">
+              <p class="text-sm">{{ message.content }}</p>
+              <div class="flex items-center justify-end mt-1">
+                <span v-if="message.is_read" class="text-xs mr-1 text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="inline-block" viewBox="0 0 16 16">
+                    <path d="M8.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L2.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093L8.95 4.992a.252.252 0 0 1 .02-.022zm-.92 5.14.92.92a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 1 0-1.091-1.028L9.477 9.417l-.485-.486-.943 1.179z"/>
+                  </svg>
+                </span>
+                <span v-else class="text-xs mr-1 text-white">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="inline-block" viewBox="0 0 16 16">
+                    <path d="M10.97 4.97a.75.75 0 0 1 1.07 1.05l-3.99 4.99a.75.75 0 0 1-1.08.02L4.324 8.384a.75.75 0 1 1 1.06-1.06l2.094 2.093 3.473-4.425a.267.267 0 0 1 .02-.022z"/>
+                  </svg>
+                </span>
+                <span class="text-xs opacity-75">
+                  {{ formatTime(message.timestamp) }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div v-else class="flex w-full justify-start">
+            <div class="bg-gray-300 text-gray-800 p-3 rounded-2xl max-w-[70%] break-words shadow-md">
+              <p class="text-sm">{{ message.content }}</p>
+              <span class="text-xs opacity-75 mt-1 block text-left">
                 {{ formatTime(message.timestamp) }}
               </span>
             </div>
           </div>
-        </div>
 
-        <div v-else class="flex w-full justify-start">
-          <div class="bg-gray-300 text-gray-800 p-3 rounded-2xl max-w-[70%] break-words shadow-md">
-            <p class="text-sm">{{ message.content }}</p>
-            <span class="text-xs opacity-75 mt-1 block text-left">
-              {{ formatTime(message.timestamp) }}
-            </span>
-          </div>
         </div>
-
       </div>
     </div>
     
-    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 z-20">
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-2 sm:p-4 z-20">
       <div class="relative">
         <div v-if="showEmojiPicker" class="absolute bottom-full mb-2 bg-white p-2 rounded-lg shadow-lg border border-gray-300 z-30 max-h-64 overflow-y-auto">
           <div class="grid grid-cols-8 gap-1">
@@ -70,10 +79,10 @@
         <div class="flex items-center">
           <button
             @click="toggleEmojiPicker"
-            class="p-2 text-gray-500 hover:text-laranja focus:outline-none mr-2"
+            class="p-1 px-0.5 text-gray-500 hover:text-laranja focus:outline-none mr-1"
             title="Inserir emoji"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 sm:w-5 sm:h-5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" />
             </svg>
           </button>
@@ -83,16 +92,19 @@
             @keyup.enter="sendMessage"
             type="text"
             maxlength="80"
-            placeholder="Digite uma mensagem (máx. 80 caracteres)..."
-            class="flex-1 border border-gray-300 rounded-full px-4 py-2 focus:outline-none focus:border-laranja"
+            placeholder="Digite uma mensagem..."
+            class="flex-1 border border-gray-300 rounded-full px-2 sm:px-4 py-2 text-sm sm:text-base focus:outline-none focus:border-laranja"
           />
           
           <button
             @click="sendMessage"
             :disabled="!messageContent.trim()"
-            class="ml-2 bg-laranja text-white px-4 py-2 rounded-full hover:bg-laranja-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            class="ml-1 bg-laranja text-white p-2 sm:p-2.5 rounded-full hover:bg-laranja-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+            title="Enviar mensagem"
           >
-            Enviar
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 12L3.269 3.126A59.768 59.768 0 0121.485 12 59.77 59.77 0 013.27 20.876L5.999 12zm0 0h7.5" />
+            </svg>
           </button>
         </div>
       </div>
@@ -151,6 +163,10 @@ const connectWebSocket = () => {
   socket.value.on("receive_message", (data) => {
     console.log("Nova mensagem recebida via Socket.IO:", data);
     messages.value.push(data);
+    
+    // Processar as mensagens para agrupá-las por data
+    processMessages();
+    
     scrollToBottom();
     
     if (data.sender !== currentUser.value?.id) {
@@ -252,6 +268,9 @@ const fetchMessages = async () => {
     });
     messages.value = response.data.results || response.data;
     
+    // Processar as mensagens para agrupá-las por data
+    processMessages();
+    
     markMessagesAsRead();
     
     setTimeout(() => {
@@ -328,6 +347,9 @@ const updateMessagesReadStatus = (messageIds) => {
     }
     return msg;
   });
+  
+  // Reprocessar as mensagens para garantir que as alterações de status sejam refletidas
+  processMessages();
 };
 
 const fetchCurrentUser = async () => {
@@ -421,6 +443,66 @@ const closeEmojiPickerOnClickOutside = (event) => {
   }
 };
 
+// Função para agrupar mensagens por data
+const groupMessagesByDate = (messages) => {
+  const groups = {};
+  
+  messages.forEach(message => {
+    const date = new Date(message.timestamp);
+    const dateStr = date.toLocaleDateString('pt-BR');
+    
+    if (!groups[dateStr]) {
+      groups[dateStr] = [];
+    }
+    
+    groups[dateStr].push(message);
+  });
+  
+  return Object.entries(groups).map(([date, messages]) => {
+    return {
+      date,
+      formattedDate: formatDateLabel(new Date(messages[0].timestamp)),
+      messages
+    };
+  }).sort((a, b) => new Date(a.date.split('/').reverse().join('-')) - new Date(b.date.split('/').reverse().join('-')));
+};
+
+// Função para formatar a data como "Hoje", "Ontem", "Anteontem" ou a data completa
+const formatDateLabel = (date) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const yesterday = new Date(today);
+  yesterday.setDate(yesterday.getDate() - 1);
+  
+  const twoDaysAgo = new Date(today);
+  twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
+  
+  const messageDate = new Date(date);
+  messageDate.setHours(0, 0, 0, 0);
+  
+  if (messageDate.getTime() === today.getTime()) {
+    return 'Hoje';
+  } else if (messageDate.getTime() === yesterday.getTime()) {
+    return 'Ontem';
+  } else if (messageDate.getTime() === twoDaysAgo.getTime()) {
+    return 'Anteontem';
+  } else {
+    return date.toLocaleDateString('pt-BR', { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric' 
+    });
+  }
+};
+
+// Computar mensagens agrupadas por data
+const groupedMessages = ref([]);
+
+// Função para processar as mensagens e agrupá-las por data
+const processMessages = () => {
+  groupedMessages.value = groupMessagesByDate(messages.value);
+};
 
 // Quando o componente é montado
 onMounted(async () => {
