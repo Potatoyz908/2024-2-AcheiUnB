@@ -121,8 +121,8 @@ async function fetchCurrentUser() {
     const response = await api.get(`/auth/user/`);
     currentUser.value = response.data;
   } catch (error) {
-    console.error("Erro ao excluir item:", error);
-    alertMessage.value = "Erro ao excluir item.";
+    console.error("Erro ao buscar usuário:", error);
+    alertMessage.value = "Erro ao buscar usuário.";
     submitError.value = true;
   }
 }
