@@ -18,15 +18,15 @@
       v-for="chatroom in chatrooms"
       :key="chatroom.id"
       class="flex items-center px-6 py-5 cursor-pointer transition-all duration-200 hover:bg-gray-200"
-      @click="openChat(chatroom)"
     >
       <img
         :src="chatroom.recipient.foto"
         alt="Foto do usuário"
         class="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-2 border-white"
+        @click.stop="openUserProfile(chatroom.recipient.id)"
       />
 
-      <div class="ml-5">
+      <div class="ml-5 flex-1" @click="openChat(chatroom)">
         <p class="text-xl font-semibold text-gray-800">{{ chatroom.recipient.name }}</p>
         <p class="text-md text-gray-500">Sobre o item: {{ chatroom.item_name }}</p>
       </div>
@@ -69,6 +69,15 @@ const openChat = (chatroom) => {
       itemId: chatroom.item_id,
     },
   });
+};
+
+const openUserProfile = (userId) => {
+  if (!userId) {
+    alertMessage.value = "Não foi possível encontrar informações do usuário.";
+    submitError.value = true;
+    return;
+  }
+  router.push({ name: "UserProfile", params: { id: userId } });
 };
 
 async function fetchCurrentUser() {

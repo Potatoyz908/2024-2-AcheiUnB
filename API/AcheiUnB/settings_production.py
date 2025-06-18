@@ -17,6 +17,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
+    "django_filters",
     "users",
     "rest_framework",
     "rest_framework.authtoken",
@@ -24,6 +25,7 @@ INSTALLED_APPS = [
     "django_extensions",
     "channels",
     "chat",
+    "reports",
     "corsheaders",
     "django_celery_beat",
     "drf_yasg",
@@ -153,7 +155,7 @@ LOGGING = {
         },
     },
 }
-LOGOUT_REDIRECT_URL = "https://localhost:8080/#/"  # Para desenvolvimento
-# LOGOUT_REDIRECT_URL = "https://achadoseperdidos.lappis.rocks/#/"  # Para produção
-LOGIN_REDIRECT_URL = "https://localhost:8080/#/lost"  # Para desenvolvimento
-# LOGIN_REDIRECT_URL = "https://achadoseperdidos.lappis.rocks/#/lost"  # Para produção
+# LOGOUT_REDIRECT_URL = "https://localhost:8080/#/"  # Para desenvolvimento
+LOGOUT_REDIRECT_URL = "https://acheiunb.com.br/#/"  # Para produção
+# LOGIN_REDIRECT_URL = "https://localhost:8080/#/lost"  # Para desenvolvimento
+LOGIN_REDIRECT_URL = "https://acheiunb.com.br/#/lost"  # Para produção

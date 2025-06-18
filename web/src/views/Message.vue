@@ -61,26 +61,22 @@
     </div>
     
   </div>
-
-  <Alert v-if="submitError" type="error" :message="alertMessage" @closed="submitError = false" />
 </template>
 
 <script setup>
 import { ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import api from "../services/api";
 import HeaderMessage from "@/components/Header-Message.vue";
-import Alert from "@/components/Alert.vue";
 import { io } from "socket.io-client";
 
 const route = useRoute();
+const router = useRouter();
 const messages = ref([]);
 const messageContent = ref("");
 const currentUser = ref(null);
 const item = ref(null);
 const receiverId = ref(null);
-const alertMessage = ref("");
-const submitError = ref(false);
 
 const chatroomId = ref(route.params.chatroomId || route.query.chatroomId);
 const itemId = ref(route.params.itemId || route.query.itemId);
@@ -181,8 +177,6 @@ const sendMessage = async () => {
 
   } catch (error) {
     console.error("Erro ao enviar mensagem:", error.response?.data || error.message);
-    alertMessage.value = "Erro ao enviar mensagem.";
-    submitError.value = true;
   }
 };
 

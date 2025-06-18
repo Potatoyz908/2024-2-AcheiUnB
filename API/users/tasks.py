@@ -5,12 +5,13 @@ import cloudinary.uploader
 from celery import shared_task
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.mail import send_mail
+from django.core.mail import EmailMessage, send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.utils.timezone import now
 
 from chat.models import Message
+from reports.models import Report
 
 from .models import Item, ItemImage, UserProfile
 
@@ -164,6 +165,8 @@ def send_unban_notification_email(user_email, first_name, last_name):
     )
 
     return f"E-mail de desbloqueio enviado para {user_email}"
+
+
 @shared_task
 def delete_old_messages(room_id, max_messages=40):
     """
@@ -173,3 +176,70 @@ def delete_old_messages(room_id, max_messages=40):
     if messages.count() > max_messages:
         ids_to_keep = messages.values_list("id", flat=True)[:max_messages]
         Message.objects.filter(room_id=room_id).exclude(id__in=ids_to_keep).delete()
+
+
+# --- Notificações de denúncia ---
+def build_report_email_body(report):
+    body = f"""
+Nova denúncia recebida no AcheiUnB:
+
+Tipo: {report.get_report_type_display()}
+Status: {report.get_status_display()}
+Denunciante: {report.reporter}
+Denunciado: {report.reported_user}
+Categorias: {', '.join(report.categories) if isinstance(report.categories, list)
+             else report.categories}
+Descrição: {report.description}
+Data/Hora: {report.created_at}
+"""
+    if report.item:
+        body += f"\nItem: {report.item} (ID: {report.item.id})"
+    if report.chatRoom:
+        body += f"\nChatRoom ID: {report.chatRoom.id}"
+    return body
+
+
+@shared_task
+def send_report_notification(report_id):
+    try:
+        report = Report.objects.get(id=report_id)
+        subject = f"Nova denúncia ({report.get_report_type_display()}) no AcheiUnB"
+        body = build_report_email_body(report)
+        email = EmailMessage(
+            subject,
+            body,
+            settings.DEFAULT_FROM_EMAIL,
+            ["acheiunb2024@gmail.com"],
+        )
+        if report.attachment:
+            email.attach_file(report.attachment.path)
+        email.send()
+    except Exception as e:
+        print(f"Erro ao enviar e-mail de notificação de denúncia: {e}")
+
+
+@shared_task
+def send_report_confirmation(report_id):
+    try:
+        report = Report.objects.get(id=report_id)
+        subject = "Recebemos sua denúncia - AcheiUnB"
+        body = (
+            "Sua denúncia foi recebida e será analisada pela equipe AcheiUnB. "
+            "Obrigado por contribuir para a segurança da plataforma!\n\n"
+            + build_report_email_body(report)
+        )
+        reporter_email = getattr(report.reporter, "email", None)
+        if not reporter_email:
+            print(f"Usuário {report.reporter} não possui e-mail cadastrado.")
+            return
+        email = EmailMessage(
+            subject,
+            body,
+            settings.DEFAULT_FROM_EMAIL,
+            [reporter_email],
+        )
+        if report.attachment:
+            email.attach_file(report.attachment.path)
+        email.send()
+    except Exception as e:
+        print(f"Erro ao enviar e-mail de confirmação de denúncia: {e}")
