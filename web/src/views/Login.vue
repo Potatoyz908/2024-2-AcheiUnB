@@ -1,142 +1,173 @@
 <template>
-  <div class="min-h-screen pb-32">
-    <div class="fixed w-full top-0 z-30">
-      <SearchHeader />
+  <div id="transition-screen" class="fixed inset-0 flex items-center justify-center z-50">
+    <div class="fixed inset-0 flex items-center justify-center z-50">
+      <Logo customClass="text-azul" />
     </div>
+  </div>
 
-    <div class="pt-24 pb-8">
-      <SubMenu />
-    </div>
+  <div
+    id="main-content"
+    class="flex flex-col lg:flex-row bg-azul text-white p-4 min-h-screen hidden items-center justify-center lg:justify-center"
+  >
+    <div class="flex flex-col items-center lg:items-start w-full max-w-2xl px-4 pt-10 lg:pt-0">
+      <div class="titulo flex justify-center lg:justify-start w-full mt-20 mb-16">
+        <Logo />
+      </div>
+      <div class="slogan text-center lg:text-left mb-24">
+        <p class="text-5xl font-bold mb-7 fade-in">Perdeu algo no campus?</p>
+        <p class="text-5xl italic font-thin mb-4 fade-in">A gente te ajuda!</p>
+      </div>
 
-    <EmptyState
-      v-if="!loading && lostItems.length === 0"
-      type ="perdido"
-    />
-
-    <div
-      v-else
-      class="grid grid-cols-[repeat(auto-fit,_minmax(180px,_1fr))] sm:grid-cols-[repeat(auto-fit,_minmax(200px,_1fr))] justify-items-center align-items-center lg:px-3 gap-y-3 pb-10"
-    >
-      <ItemCard
-        v-for="item in lostItems"
-        :key="item.id"
-        :name="item.name"
-        :location="item.location_name"
-        :time="formatTime(item.created_at)"
-        :image="item.image_urls?.[0] ?? NotAvailableImage"
-        :id="item.id"
-      />
-    </div>
-
-    <div v-if="lostItems.length" class="flex w-full justify-start sm:justify-center">
-      <div class="ml-24 transform -translate-x-1/2 flex gap-4 z-10">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="size-10 text-azul hover:text-laranja transition duration-200 cursor-pointer"
-          @click="goToPreviousPage"
+      <div class="flex justify-center lg:justify-start w-full">
+        <button
+          ref="animatedButton"
+          @click="redirectToLoginMicrosoft"
+          class="flex items-center rounded-full bg-gray-50 px-10 py-4 md:px-24 md:py-5 text-azul ring-1 ring-inset ring-gray-500/10 shadow-sm transition transform transition duration-300 hover:scale-105"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+          <img
+            src="../assets/icons/Microsoft_logo2.svg"
+            alt="Logo Microsoft"
+            class="h-6 w-auto mr-4"
           />
-        </svg>
-
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="size-10 text-azul hover:text-laranja transition duration-200 cursor-pointer"
-          @click="goToNextPage"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="m12.75 15 3-3m0 0-3-3m3 3h-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-          />
-        </svg>
+          <span class="font-bold font-inter text-lg md:text-xl">
+            Entrar com e-mail da UnB
+          </span>
+        </button>
       </div>
     </div>
 
-    <ButtonAdd />
-    <div class="fixed bottom-0 w-full">
-      <MainMenu activeIcon="search" />
+    <div
+      v-if="foundItems.length"
+class="relative flex flex-col items-center w-full max-w-4xl px-4 mt-16 lg:mt-10 lg:ml-10"
+      @click="animateButton()"
+    >
+    <div class="grid grid-cols-1 md:grid-cols-2 xxl:grid-cols-3 gap-8 w-full justify-items-center">
+        <ItemCard
+          v-for="item in foundItemsToDisplay"
+          :key="item.id"
+          :name="item.name"
+          :location="item.location_name"
+          :time="formatTime(item.created_at)"
+          :image="item.image_urls[0] || NotAvailableImage"
+          :id="item.id"
+          :disabled="true"
+        />
+      </div>
+      <div
+        class="absolute bottom-0 left-0 w-full h-60 bg-gradient-to-t from-azul to-transparent flex justify-center items-end pb-4"
+      >
+        <button
+          class="bg-laranja text-white font-semibold px-16 py-2 rounded-lg shadow-sm transition transform transition duration-300 hover:scale-105"
+        >
+          Ver Mais
+        </button>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup>
-import MainMenu from "../components/Main-Menu.vue";
-import ItemCard from "../components/Item-Card.vue";
-import ButtonAdd from "../components/Button-Add-Lost.vue";
-import SearchHeader from "../components/Search-Header.vue";
-import SubMenu from "../components/Sub-Menu-Lost.vue";
-import { ref, watch, onMounted } from "vue";
-import { fetchLostItems } from "@/services/apiItems";
+import { onMounted, ref, computed, onBeforeUnmount } from "vue";
+import Logo from "../components/Logo.vue";
+import { fetchFoundItems } from "@/services/apiItems";
 import { formatTime } from "@/utils/dateUtils";
+import ItemCard from "../components/Item-Card.vue";
 import NotAvailableImage from "@/assets/images/not-available.png";
-import { filtersState } from "@/store/filters";
-import EmptyState from "@/components/Empty-State.vue";
 
-const lostItems = ref([]);
-const currentPage = ref(1);
-const totalPages = ref(1);
-const loading = ref(true);
+const foundItems = ref([]);
+const animatedButton = ref(null);
+const windowWidth = ref(window.innerWidth);
 
-const fetchItems = async (page = 1) => {
-  try {
-    loading.value = true;
-    const { searchQuery, activeCategory, activeLocation } = filtersState;
+function updateWidth() {
+  windowWidth.value = window.innerWidth;
+}
 
-    const response = await fetchLostItems({
-      page,
-      search: searchQuery,
-      category_name: activeCategory,
-      location_name: activeLocation,
-    });
+onMounted(async () => {
+  window.addEventListener("resize", updateWidth);
 
-    if (response && response.results && response.count !== undefined) {
-      lostItems.value = response.results;
-      totalPages.value = Math.ceil(response.count / 27);
-    } else {
-      console.error("Resposta da API inválida:", response);
-    }
-  } catch (error) {
-    console.error("Erro ao buscar itens:", error);
-  } finally {
-    loading.value = false;
-  }
-};
+  const transitionScreen = document.getElementById("transition-screen");
+  const mainContent = document.getElementById("main-content");
 
-const goToPreviousPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value -= 1;
-    fetchItems(currentPage.value);
-  }
-};
+  setTimeout(() => {
+    transitionScreen.classList.add("fade-out");
+  }, 500);
 
-const goToNextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value += 1;
-    fetchItems(currentPage.value);
-  }
-};
+  transitionScreen.addEventListener("animationend", () => {
+    transitionScreen.classList.add("hidden");
+    mainContent.classList.remove("hidden");
+    mainContent.classList.add("fade-in");
+  });
 
-watch(
-  () => [filtersState.searchQuery, filtersState.activeCategory, filtersState.activeLocation],
-  () => {
-    currentPage.value = 1;
-    fetchItems();
-  }
+  const response = await fetchFoundItems({
+    page: 1,
+    search: "",
+    category_name: "",
+    location_name: "",
+  });
+
+  foundItems.value = response.results;
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("resize", updateWidth);
+});
+
+const itemsToShow = computed(() => {
+  return windowWidth.value >= 1341 ? 6 : 4;
+});
+
+const foundItemsToDisplay = computed(() =>
+  foundItems.value.slice(0, itemsToShow.value)
 );
 
-onMounted(() => fetchItems(currentPage.value));
+function animateButton() {
+  if (animatedButton.value) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
+    let checkScroll = setInterval(() => {
+      if (window.scrollY === 0) {
+        clearInterval(checkScroll);
+
+        animatedButton.value.classList.add("scale-125");
+
+        setTimeout(() => {
+          animatedButton.value.classList.remove("scale-125");
+        }, 300);
+      }
+    }, 50);
+  }
+}
+
+function redirectToLoginMicrosoft() {
+  window.location.href =
+    "https://login.microsoftonline.com/common/oauth2/v2.0/authorize?client_id=30194d95-b341-485e-8b37-cffcfc553414&scope=User.Read&response_type=code&state=Zay5NfY4tSn7JgvO&domain=alunos.unb.br";
+}
 </script>
 
-<style scoped></style>
+<style scoped>
+.fade-out {
+  animation: fadeOut 1s forwards;
+}
+
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 1s forwards;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+</style>
