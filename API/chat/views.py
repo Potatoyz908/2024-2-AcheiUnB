@@ -52,7 +52,8 @@ class ChatRoomViewSet(ModelViewSet):
                     type=openapi.TYPE_INTEGER, description="ID do segundo participante."
                 ),
                 "item_id": openapi.Schema(
-                    type=openapi.TYPE_INTEGER, description="ID do item associado à conversa."
+                    type=openapi.TYPE_INTEGER,
+                    description="ID do item associado à conversa.",
                 ),
             },
             required=["participant_2", "item_id"],
@@ -77,7 +78,9 @@ class ChatRoomViewSet(ModelViewSet):
             raise ValidationError("O item associado não foi encontrado.")
 
         existing_chat = ChatRoom.objects.filter(
-            participant_1=participant_1_id, participant_2=participant_2_id, item_id=item_id
+            participant_1=participant_1_id,
+            participant_2=participant_2_id,
+            item_id=item_id,
         ).first()
 
         if existing_chat:
@@ -210,7 +213,10 @@ class MessageViewSet(ModelViewSet):
         responses={201: openapi.Response("Mensagem enviada", MessageSerializer)},
     )
     def perform_create(self, serializer):
+        # Salva a mensagem
         message = serializer.save(sender=self.request.user)
+
+        # Agenda a limpeza de mensagens antigas
         delete_old_messages.delay(message.room_id)
 
 
