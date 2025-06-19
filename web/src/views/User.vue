@@ -78,13 +78,14 @@
           Meus itens ativos
         </button>
       </router-link>
-      <a href="mailto:acheiunb2024@gmail.com" class="w-full flex justify-center">
+      <div class="w-full flex justify-center">
         <button
+          @click="openReportModal"
           class="bg-azul text-white w-full md:w-[80%] lg:w-[70%] font-medium py-4 md:py-5 lg:py-6 rounded-full hover:scale-105 transition-transform duration-300 text-center text-lg md:text-xl lg:text-2xl shadow-lg border-2 border-azul/20"
         >
           Reportar um problema
         </button>
-      </a>
+      </div>
       <button
         @click="handleLogout"
         class="w-full flex justify-center"
@@ -102,6 +103,14 @@
 
   <Alert v-if="submitError" type="error" :message="alertMessage" @closed="submitError = false" />
   <Alert v-if="submitSuccess" type="success" :message="alertMessage" @closed="submitSuccess = false" />
+  
+  <ReportProblemModal 
+    :is-open="isReportModalOpen" 
+    :user-email="user.email" 
+    @close="closeReportModal" 
+    @success="handleReportSuccess" 
+    @error="handleReportError"
+  />
 </template>
 
 <script setup>
@@ -111,6 +120,7 @@ import MainMenu from "../components/Main-Menu.vue";
 import Alert from "@/components/Alert.vue";
 import { useRouter } from "vue-router";
 import UserHeader from "@/components/Header-User.vue";
+import ReportProblemModal from "@/components/ReportProblemModal.vue";
 
 const user = ref({
   foto: "",
@@ -129,6 +139,7 @@ const alertMessage = ref("");
 const submitError = ref(false);
 const submitSuccess = ref(false);
 const router = useRouter();
+const isReportModalOpen = ref(false);
 
 async function fetchUserData() {
   try {
@@ -217,6 +228,24 @@ async function handleLogout() {
       .replace(/=.*/, "=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/");
   });
   router.replace({ name: "Login" });
+}
+
+function openReportModal() {
+  isReportModalOpen.value = true;
+}
+
+function closeReportModal() {
+  isReportModalOpen.value = false;
+}
+
+function handleReportSuccess(message) {
+  alertMessage.value = message;
+  submitSuccess.value = true;
+}
+
+function handleReportError(message) {
+  alertMessage.value = message;
+  submitError.value = true;
 }
 
 onMounted(fetchUserData);
