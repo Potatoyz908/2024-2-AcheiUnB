@@ -68,8 +68,11 @@
           user.username
         }}
       </h1>
-      <p class="text-sm lg:text-lg text-cinza3">
-        {{ user.email || "Email não disponível" }}
+      <p class="text-sm lg:text-lg text-cinza3" v-if="user.email">
+        {{ user.email }}
+      </p>
+      <p class="text-sm lg:text-lg text-cinza3" v-else>
+        {{ isOwnProfile ? "Email não disponível" : "Email protegido" }}
       </p>
 
       <p v-if="user.matricula" class="text-sm lg:text-lg text-cinza3">
@@ -246,8 +249,11 @@ const user = ref({
   username: '',
   matricula: null,
   is_active: true,
-  isStudent: false
+  isStudent: false,
+  id: null
 });
+
+const currentUser = ref(null);
 
 const userStats = ref({
   itemsLost: 0,
@@ -277,6 +283,20 @@ const isStudent = computed(() => {
   const matricula = user.value.matricula;
   return matricula && /^\d{8,9}$/.test(matricula.toString());
 });
+
+const isOwnProfile = computed(() => {
+  return currentUser.value?.id === user.value.id;
+});
+
+// Busca o usuário atual para comparar com o perfil exibido
+async function fetchCurrentUser() {
+  try {
+    const response = await api.get('/auth/user/');
+    currentUser.value = response.data;
+  } catch (error) {
+    console.error('Erro ao buscar usuário atual:', error);
+  }
+}
 
 // Buscar dados do perfil do usuário
 async function fetchUserProfile() {
@@ -450,7 +470,10 @@ async function submitReport() {
   }
 }
 
-onMounted(fetchUserProfile);
+onMounted(async () => {
+  await fetchCurrentUser();
+  await fetchUserProfile();
+});
 </script>
 
 <style scoped>
