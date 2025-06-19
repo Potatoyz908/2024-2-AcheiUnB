@@ -177,8 +177,16 @@ const connectWebSocket = () => {
     }
   });
 
+  // Adicionar validação no recebimento de mensagens via WebSocket
   socket.value.on("receive_message", (data) => {
     console.log("Nova mensagem recebida via Socket.IO:", data);
+
+    // Verificar se a mensagem pertence ao chat atual
+    if (data.chatroomId !== chatroomId.value) {
+      console.warn("Mensagem recebida para um chat diferente. Ignorando.");
+      return;
+    }
+
     messages.value.push(data);
     
     // Processar as mensagens para agrupá-las por data
@@ -214,30 +222,7 @@ if (!chatroomId.value) {
   console.log("chatroomId:", chatroomId.value);
 }
 
-// const sendMessage = async () => {
-//   if (!chatroomId.value) {
-//     console.error("ID do chat não encontrado, não é possível enviar mensagem");
-//     return;
-//   }
-//   if (!messageContent.value.trim()) {
-//     console.warn("Mensagem vazia, nada a enviar");
-//     return;
-//   }
-  
-//   try {
-//     console.log("Enviando mensagem para room:", chatroomId.value, "Conteúdo:", messageContent.value);
-//     // Chama a API para enviar a mensagem
-//     await api.post("/chat/messages/", {
-//       room: chatroomId.value,
-//       content: messageContent.value
-//     });
-//     messageContent.value = "";
-//     await fetchMessages();
-//   } catch (error) {
-//     console.error("Erro ao enviar mensagem:", error.response?.data || error.message);
-//   }
-// };
-
+// Adicionar validação no envio de mensagens
 const sendMessage = async () => {
   if (!chatroomId.value) {
     console.error("ID do chat não encontrado, não é possível enviar mensagem");
@@ -263,7 +248,7 @@ const sendMessage = async () => {
 
     // Agora, envia a mensagem pelo Socket.IO
     if (socket.value && socket.value.connected) {
-      socket.value.emit("send_message", mensagemSalva);
+      socket.value.emit("send_message", { ...mensagemSalva, chatroomId: chatroomId.value });
     } else {
       console.warn("Socket.IO não está conectado. Mensagem salva no banco, mas não enviada em tempo real.");
       // Como Socket.IO não está conectado, adicionamos a mensagem manualmente ao array

@@ -18,13 +18,16 @@
     </div>
   </div>
 
-  <div v-else-if="sortedChatrooms.length" class="pt-32 pb-24">
+  <div v-else-if="sortedChatrooms.length" class="pt-32 pb-24 px-4">
     <div
       v-for="(chatroom, index) in sortedChatrooms"
       :key="chatroom.id"
-      class="relative"
+      class="relative mb-2"
     >
-      <div class="flex items-center px-6 py-5 cursor-pointer transition-all duration-200 hover:bg-gray-100">
+      <div 
+        class="flex items-center px-5 py-5 cursor-pointer transition-all duration-200 hover:bg-gray-50 border rounded-lg shadow-sm bg-white border-hover"
+        :class="{'border-gray-200': !chatroom.unread_count, 'border-laranja': chatroom.unread_count > 0, 'border-l-4': chatroom.unread_count > 0}"
+      >
         <img
           :src="chatroom.recipient.foto"
           alt="Foto do usuário"
@@ -41,9 +44,11 @@
             </span>
           </div>
           <p class="text-md text-gray-500">Sobre o item: {{ chatroom.item_name }}</p>
+          <p class="text-xs text-gray-400 mt-1">
+            {{ formatLastMessageDate(chatroom.last_message_timestamp) }}
+          </p>
         </div>
       </div>
-      <div v-if="index < sortedChatrooms.length - 1" class="border-b border-gray-200 mx-6"></div>
     </div>
   </div>
 
@@ -102,6 +107,32 @@ const openUserProfile = (userId) => {
     return;
   }
   router.push({ name: "UserProfile", params: { id: userId } });
+};
+
+const formatLastMessageDate = (timestamp) => {
+  if (!timestamp) return 'Sem mensagens';
+  
+  const messageDate = new Date(timestamp);
+  const now = new Date();
+  
+  // Diferença em milissegundos
+  const diffMs = now - messageDate;
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  
+  if (diffDays === 0) {
+    // Hoje - mostrar a hora
+    return `Hoje às ${messageDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+  } else if (diffDays === 1) {
+    // Ontem
+    return 'Ontem';
+  } else if (diffDays < 7) {
+    // Dentro da semana - mostrar o dia da semana
+    const weekdays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+    return weekdays[messageDate.getDay()];
+  } else {
+    // Mais de uma semana - mostrar data completa
+    return messageDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' });
+  }
 };
 
 async function fetchCurrentUser() {
@@ -323,5 +354,16 @@ onUnmounted(() => {
 @keyframes progress {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(400%); }
+}
+
+/* Estilos para as bordas das conversas */
+.border-hover {
+  transition: all 0.3s ease;
+}
+
+.border-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #FF7A00;
 }
 </style>
