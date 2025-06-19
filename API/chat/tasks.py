@@ -19,7 +19,7 @@ def send_chat_notification_email(
         sender_name: Nome do usuário que criou o chat
         chat_url: URL para acessar o chat
     """
-    subject = f"AcheiUnB - Novo chat sobre o item: {item_name}"
+    subject = f"AcheiUnB - NOVO CHAT! Alguém quer falar sobre: {item_name}"
 
     # Contexto para o template do e-mail
     context = {
