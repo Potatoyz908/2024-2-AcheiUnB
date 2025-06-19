@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Novo Chat Aberto! - AcheiUnB</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f0f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .header {
+            background-color: #008940;
+            color: white;
+            padding: 20px;
+            border-radius: 12px 12px 0 0;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .intro {
+            margin-bottom: 20px;
+            font-size: 16px;
+        }
+
+        .item-highlight {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06);
+            border-left: 8px solid #1a237e;
+            margin-bottom: 20px;
+        }
+
+        .item-name {
+            font-size: 18px;
+            color: #333;
+            font-weight: bold;
+            margin-top: 0;
+        }
+
+        .notification-alert {
+            background-color: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+            border-left: 5px solid #F59E0B;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #f8f9fa;
+            border-top: 2px solid #008940;
+            border-radius: 0 0 12px 12px;
+            margin-top: 30px;
+        }
+
+        .footer-logo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.25rem;
+            margin-top: 20px;
+        }
+
+        .footer-text {
+            margin: 0;
+            color: black;
+            font-family: Arial, sans-serif;
+            font-size: 2rem;
+        }
+
+        .italic {
+            font-style: italic;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .footer-bottom {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .link-button {
+            display: inline-block;
+            background-color: #1a237e;
+            padding: 12px 24px;
+            text-decoration: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+        }
+
+        .link-button:hover {
+            background-color: #005a32;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>UHUUL! Novo Chat Aberto no AcheiUnB! </h1>
+    </div>
+
+    <div class="intro">
+        <p>Olá, <strong>{{ recipient_name }}</strong>!</p>
+        <p>Temos ótimas notícias! <strong>{{ sender_name }}</strong> acabou de iniciar um chat com você no AcheiUnB sobre o seguinte item:</p>
+    </div>
+
+    <div class="item-highlight">
+        <h3 class="item-name">{{ item_name }}</h3>
+    </div>
+
+    <div class="notification-alert">
+        <p>🔔 <strong>Sua participação é importante!</strong> Este pode ser o momento que você estava esperando para resolver a situação deste item. A conversa já está pronta para você responder!</p>
+    </div>
+    
+    <div class="footer">
+        <p>Clique no botão abaixo para entrar na conversa:</p>
+        <a href="{{ chat_url }}" class="link-button">ENTRAR NO CHAT AGORA!</a>
+        
+        <p>O AcheiUnB conecta a comunidade universitária, facilitando o encontro de itens perdidos e tornando o campus um ambiente mais colaborativo. Responda rapidamente para aumentar suas chances!</p>
+        
+        <div style="background-color: #e6f3ff; padding: 15px; border-radius: 8px; margin: 20px 0; border-left: 5px solid #1a237e; text-align: left;">
+            <h4 style="margin-top: 0; color: #1a237e;">Como funciona o chat do AcheiUnB:</h4>
+            <ul style="padding-left: 20px; margin-bottom: 0;">
+                <li>O chat mantém um histórico limitado de <strong>40 mensagens</strong> para manter a conversa organizada.</li>
+                <li>Quando esse limite é atingido, as mensagens mais antigas são automaticamente removidas.</li>
+                <li>Troque contatos pessoais apenas quando estiver seguro(a) de que encontrou o item certo.</li>
+                <li>Todas as mensagens são protegidas e só ficam visíveis para você e o outro participante.</li>
+            </ul>
+        </div>
+        
+        <div class="footer-logo">
+            <h1 class="footer-text">
+                <span class="italic">Achei</span><span class="bold">UnB</span>
+            </h1>
+        </div>
+        
+        <div class="footer-bottom">
+            <p>Este é um e-mail automático, por favor não responda.</p>
+        </div>
+    </div>
+</body>
+</html>

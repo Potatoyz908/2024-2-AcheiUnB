@@ -7,7 +7,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["achadoseperdidos.lappis.rocks", "acheiunb.com.br", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = [
+    "achadoseperdidos.lappis.rocks",
+    "acheiunb.com.br",
+    "localhost",
+    "127.0.0.1",
+]
 INSTALLED_APPS = [
     "jazzmin",
     "django.contrib.contenttypes",
@@ -29,6 +34,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "django_celery_beat",
     "drf_yasg",
+    "support",
 ]
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",

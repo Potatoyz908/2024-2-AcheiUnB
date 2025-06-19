@@ -220,7 +220,13 @@ const fetchUserData = async () => {
   if (!userId.value) return;
   try {
     const response = await api.get(`/auth/user-profile/${userId.value}/`);
-    userName.value = response.data.first_name ? `${response.data.first_name} ${response.data.last_name}`.trim() : response.data.username || "Usuário";
+    userName.value = response.data.first_name && response.data.last_name 
+      ? `${response.data.first_name} ${response.data.last_name}`.trim() 
+      : response.data.first_name 
+        ? response.data.first_name 
+        : response.data.last_name 
+          ? response.data.last_name 
+          : response.data.username || "Usuário";
     userImage.value = response.data.foto || defaultAvatar;
   } catch {}
 };

@@ -127,8 +127,12 @@ def delete_old_items_and_chats():
 @shared_task
 def send_ban_notification_email(user_email, first_name, last_name):
     subject = "Notificação de Banimento - AcheiUnB"
+    user_full_name = first_name
+    if last_name:
+        user_full_name += f" {last_name}"
+
     message = (
-        f"Olá {first_name} {last_name},\n\n"
+        f"Olá {user_full_name},\n\n"
         "Informamos que sua conta no AcheiUnB foi banida.\n"
         "Se você acredita que isso foi um erro, entre em contato com o suporte."
     )
@@ -148,8 +152,12 @@ def send_ban_notification_email(user_email, first_name, last_name):
 @shared_task
 def send_unban_notification_email(user_email, first_name, last_name):
     subject = "Sua conta foi desbloqueada - AcheiUnB"
+    user_full_name = first_name
+    if last_name:
+        user_full_name += f" {last_name}"
+
     message = (
-        f"Olá {first_name} {last_name},\n\n"
+        f"Olá {user_full_name},\n\n"
         "Informamos que sua conta no AcheiUnB foi desbloqueada.\n"
         "Você já pode voltar a utilizar a plataforma normalmente.\n\n"
         "Se tiver dúvidas, entre em contato com nosso suporte."

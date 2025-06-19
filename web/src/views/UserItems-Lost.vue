@@ -39,7 +39,7 @@
         viewBox="0 0 24 24"
         stroke-width="1.5"
         stroke="currentColor"
-        class="size-10 text-azul hover:text-laranja transition duration-200 cursor-pointer hover:scale-125"
+        class="size-10 text-azul active:text-azul hover:text-laranja transition duration-200 cursor-pointer hover:scale-125 active:scale-100"
         @click="goToPreviousPage"
       >
         <path
@@ -57,7 +57,7 @@
         viewBox="0 0 24 24"
         stroke-width="1.5"
         stroke="currentColor"
-        class="size-10 text-azul hover:text-laranja transition duration-200 cursor-pointer hover:scale-125"
+        class="size-10 text-azul active:text-azul hover:text-laranja transition duration-200 cursor-pointer hover:scale-125 active:scale-100"
         @click="goToNextPage"
       >
         <path
@@ -70,7 +70,7 @@
   </div>
 
   <div class="fixed bottom-0 w-full">
-    <MainMenu activeIcon="search" />
+    <MainMenu activeIcon="user" />
   </div>
 
   <Alert v-if="submitError" type="error" :message="alertMessage" @closed="submitError = false" />

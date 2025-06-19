@@ -3,32 +3,51 @@
     <ItemHeader :title="'Mensagens'" :canEditUser="false" />
   </div>
 
-  <div v-if="loadingChats" class="pt-32 pb-24 space-y-4">
-    <div v-for="n in 3" :key="n" class="flex items-center px-6">
-      <div class="w-[90px] h-[90px] rounded-full bg-cinza2 animate-pulse"></div>
-      <div class="flex-1 px-4 space-y-2">
-        <div class="h-7 bg-cinza2 rounded-md animate-pulse"></div>
-        <div class="h-5 bg-cinza2 rounded-md animate-pulse"></div>
+  <div v-if="loadingChats" class="pt-32 pb-24 flex flex-col items-center justify-center h-[60vh] relative">
+    <div class="flex flex-col items-center justify-center">
+      <img
+        src="@/assets/icons/Favicon.png"
+        alt="AcheiUnB"
+        class="w-24 h-24 mb-4 animate-bounce"
+      />
+      <div class="loading-bar">
+        <div class="loading-bar-progress"></div>
       </div>
+      <p class="text-lg font-bold text-azul mt-6 text-center">Carregando suas conversas...</p>
+      <p class="text-sm text-cinza3 mt-2 text-center">Estamos buscando todos os seus chats</p>
     </div>
   </div>
 
-  <div v-else-if="chatrooms.length" class="pt-32 pb-24">
+  <div v-else-if="sortedChatrooms.length" class="pt-32 pb-24 px-4">
     <div
-      v-for="chatroom in chatrooms"
+      v-for="(chatroom, index) in sortedChatrooms"
       :key="chatroom.id"
-      class="flex items-center px-6 py-5 cursor-pointer transition-all duration-200 hover:bg-gray-200"
+      class="relative mb-2"
     >
-      <img
-        :src="chatroom.recipient.foto"
-        alt="Foto do usuário"
-        class="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-2 border-white"
-        @click.stop="openUserProfile(chatroom.recipient.id)"
-      />
+      <div 
+        class="flex items-center px-5 py-5 cursor-pointer transition-all duration-200 hover:bg-gray-50 border rounded-lg shadow-sm bg-white border-hover"
+        :class="{'border-gray-200': !chatroom.unread_count, 'border-laranja': chatroom.unread_count > 0, 'border-l-4': chatroom.unread_count > 0}"
+      >
+        <img
+          :src="chatroom.recipient.foto"
+          alt="Foto do usuário"
+          class="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-2 border-white shadow-md"
+          @click.stop="openUserProfile(chatroom.recipient.id)"
+        />
 
-      <div class="ml-5 flex-1" @click="openChat(chatroom)">
-        <p class="text-xl font-semibold text-gray-800">{{ chatroom.recipient.name }}</p>
-        <p class="text-md text-gray-500">Sobre o item: {{ chatroom.item_name }}</p>
+        <div class="ml-5 flex-1" @click="openChat(chatroom)">
+          <div class="flex items-center justify-between">
+            <p class="text-xl font-semibold text-gray-800">{{ chatroom.recipient.name }}</p>
+            <span v-if="chatroom.unread_count > 0" 
+                  class="bg-laranja text-white text-xs font-bold px-2 py-1 rounded-full">
+              {{ chatroom.unread_count }}
+            </span>
+          </div>
+          <p class="text-md text-gray-500">Sobre o item: {{ chatroom.item_name }}</p>
+          <p class="text-xs text-gray-400 mt-1">
+            {{ formatLastMessageDate(chatroom.last_message_timestamp) }}
+          </p>
+        </div>
       </div>
     </div>
   </div>
@@ -45,13 +64,14 @@
 </template>
 
 <script setup>
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import api from "../services/api";
 import ItemHeader from "../components/Item-Header.vue";
 import MainMenu from "../components/Main-Menu.vue";
 import defaultAvatar from "@/assets/images/default-avatar.png";
 import Alert from "@/components/Alert.vue";
+import { io } from "socket.io-client";
 
 const router = useRouter();
 const currentUser = ref(null);
@@ -59,6 +79,15 @@ const chatrooms = ref([]);
 const loadingChats = ref(true);
 const alertMessage = ref("");
 const submitError = ref(false);
+const socket = ref(null);
+
+const sortedChatrooms = computed(() => {
+  return [...chatrooms.value].sort((a, b) => {
+    const dateA = a.last_message_timestamp ? new Date(a.last_message_timestamp) : new Date(0);
+    const dateB = b.last_message_timestamp ? new Date(b.last_message_timestamp) : new Date(0);
+    return dateB - dateA;
+  });
+});
 
 const openChat = (chatroom) => {
   if (!chatroom.id || !chatroom.recipient || !chatroom.item_id) return;
@@ -78,6 +107,32 @@ const openUserProfile = (userId) => {
     return;
   }
   router.push({ name: "UserProfile", params: { id: userId } });
+};
+
+const formatLastMessageDate = (timestamp) => {
+  if (!timestamp) return 'Sem mensagens';
+  
+  const messageDate = new Date(timestamp);
+  const now = new Date();
+  
+  // Diferença em milissegundos
+  const diffMs = now - messageDate;
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  
+  if (diffDays === 0) {
+    // Hoje - mostrar a hora
+    return `Hoje às ${messageDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}`;
+  } else if (diffDays === 1) {
+    // Ontem
+    return 'Ontem';
+  } else if (diffDays < 7) {
+    // Dentro da semana - mostrar o dia da semana
+    const weekdays = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+    return weekdays[messageDate.getDay()];
+  } else {
+    // Mais de uma semana - mostrar data completa
+    return messageDate.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: '2-digit' });
+  }
 };
 
 async function fetchCurrentUser() {
@@ -116,6 +171,19 @@ async function fetchUserChatrooms() {
 
         const userResponse = await api.get(`/users/${otherUserId}/`);
         otherUserFoto = userResponse.data.foto ? userResponse.data.foto : defaultAvatar;
+        
+        let lastMessageTimestamp = chatroom.created_at;
+        try {
+          const messagesResponse = await api.get("/chat/messages/", {
+            params: { room: chatroom.id, limit: 1 }
+          });
+          
+          if (messagesResponse.data.results && messagesResponse.data.results.length > 0) {
+            lastMessageTimestamp = messagesResponse.data.results[0].timestamp;
+          }
+        } catch (err) {
+          console.error(`Erro ao buscar última mensagem do chatroom ${chatroom.id}:`, err);
+        }
 
         chatroomsTemp.push({
           ...chatroom,
@@ -124,6 +192,8 @@ async function fetchUserChatrooms() {
             name: otherUserName,
             foto: otherUserFoto,
           },
+          unread_count: chatroom.unread_count || 0,
+          last_message_timestamp: lastMessageTimestamp
         });
       }
     }
@@ -138,8 +208,97 @@ async function fetchUserChatrooms() {
   }
 }
 
+const connectWebSocket = () => {
+  const WS_URL = import.meta.env.VITE_WS_URL;
+  
+  socket.value = io(WS_URL, {
+    transports: ["websocket"],
+    path: "/socket.io/"
+  });
+
+  socket.value.on("connect", () => {
+    console.log("Socket.IO conectado na lista de chats:", socket.value.id);
+  });
+
+  socket.value.on("receive_message", (data) => {
+    console.log("Nova mensagem recebida na lista de chats:", data);
+    updateChatroomWithNewMessage(data);
+  });
+  
+  socket.value.on("chatlist_update", (data) => {
+    console.log("Atualização da lista de chats:", data);
+    if (data.last_message) {
+      updateChatroomWithNewMessage(data.last_message);
+    }
+  });
+  
+  socket.value.on("message_status_updated", (data) => {
+    console.log("Status de mensagem atualizado na lista de chats:", data);
+    updateUnreadMessageCount(data.chat_id);
+  });
+
+  socket.value.on("disconnect", () => {
+    console.warn("Socket.IO desconectado da lista de chats.");
+  });
+
+  socket.value.on("connect_error", (err) => {
+    console.error("Erro ao conectar no Socket.IO da lista de chats:", err);
+  });
+};
+
+const updateChatroomWithNewMessage = (message) => {
+  if (!message || !message.room) return;
+  
+  const chatroomIndex = chatrooms.value.findIndex(chat => chat.id === message.room);
+  
+  if (chatroomIndex !== -1) {
+    const updatedChatroom = { 
+      ...chatrooms.value[chatroomIndex],
+      last_message_timestamp: message.timestamp
+    };
+    
+    if (message.sender !== currentUser.value?.id) {
+      updatedChatroom.unread_count = (updatedChatroom.unread_count || 0) + 1;
+    }
+    
+    const updatedChatrooms = [...chatrooms.value];
+    updatedChatrooms[chatroomIndex] = updatedChatroom;
+    chatrooms.value = updatedChatrooms;
+  } else {
+    fetchUserChatrooms();
+  }
+};
+
+const updateUnreadMessageCount = async (chatroomId) => {
+  if (!chatroomId) return;
+  
+  try {
+    const response = await api.get(`/chat/chatrooms/${chatroomId}/`);
+    const updatedChatroom = response.data;
+    
+    const chatroomIndex = chatrooms.value.findIndex(chat => chat.id === chatroomId);
+    if (chatroomIndex !== -1) {
+      const updatedChatrooms = [...chatrooms.value];
+      updatedChatrooms[chatroomIndex] = {
+        ...updatedChatrooms[chatroomIndex],
+        unread_count: updatedChatroom.unread_count || 0
+      };
+      chatrooms.value = updatedChatrooms;
+    }
+  } catch (error) {
+    console.error(`Erro ao atualizar contador de mensagens não lidas do chatroom ${chatroomId}:`, error);
+  }
+};
+
 onMounted(() => {
   fetchCurrentUser();
+  connectWebSocket();
+});
+
+onUnmounted(() => {
+  if (socket.value) {
+    socket.value.disconnect();
+  }
 });
 </script>
 
@@ -158,5 +317,53 @@ onMounted(() => {
 
 .animate-pulse {
   animation: pulse 1.5s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 1.5s infinite;
+}
+
+/* Estilos da bolinha de carregamento removidos */
+
+.loading-bar {
+  width: 200px;
+  height: 6px;
+  background-color: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.loading-bar-progress {
+  height: 100%;
+  width: 30%;
+  background-color: #1a237e;
+  border-radius: 3px;
+  animation: progress 1.5s ease-in-out infinite;
+}
+
+@keyframes progress {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+
+/* Estilos para as bordas das conversas */
+.border-hover {
+  transition: all 0.3s ease;
+}
+
+.border-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: #FF7A00;
 }
 </style>

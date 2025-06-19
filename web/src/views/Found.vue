@@ -29,22 +29,21 @@
     </div>
 
     <div v-if="foundItems.length" class="flex w-full justify-center pb-24">
-      <div class="flex gap-4 z-0 items-center">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke-width="1.5"
-          stroke="currentColor"
-          class="size-10 text-azul hover:text-laranja transition duration-200 cursor-pointer hover:scale-125"
-          @click="goToPreviousPage"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-          />
-        </svg>
+      <div class="flex gap-4 z-0 items-center">      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke-width="1.5"
+        stroke="currentColor"
+        class="size-10 text-azul active:text-azul hover:text-laranja transition duration-200 cursor-pointer hover:scale-125 active:scale-100"
+        @click="goToPreviousPage"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="m11.25 9-3 3m0 0 3 3m-3-3h7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+        />
+      </svg>
         <span class="font-medium text-base text-azul select-none min-w-[30px] text-center">
           {{ currentPage }} / {{ totalPages }}
         </span>
@@ -54,7 +53,7 @@
           viewBox="0 0 24 24"
           stroke-width="1.5"
           stroke="currentColor"
-          class="size-10 text-azul hover:text-laranja transition duration-200 cursor-pointer hover:scale-125"
+          class="size-10 text-azul active:text-azul hover:text-laranja transition duration-200 cursor-pointer hover:scale-125 active:scale-100"
           @click="goToNextPage"
         >
           <path
