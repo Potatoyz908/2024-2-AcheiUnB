@@ -3,39 +3,47 @@
     <ItemHeader :title="'Mensagens'" :canEditUser="false" />
   </div>
 
-  <div v-if="loadingChats" class="pt-32 pb-24 space-y-4">
-    <div v-for="n in 3" :key="n" class="flex items-center px-6">
-      <div class="w-[90px] h-[90px] rounded-full bg-cinza2 animate-pulse"></div>
-      <div class="flex-1 px-4 space-y-2">
-        <div class="h-7 bg-cinza2 rounded-md animate-pulse"></div>
-        <div class="h-5 bg-cinza2 rounded-md animate-pulse"></div>
+  <div v-if="loadingChats" class="pt-32 pb-24 flex flex-col items-center justify-center h-[60vh] relative">
+    <div class="flex flex-col items-center justify-center">
+      <img
+        src="@/assets/icons/Favicon.png"
+        alt="AcheiUnB"
+        class="w-24 h-24 mb-4 animate-bounce"
+      />
+      <div class="loading-bar">
+        <div class="loading-bar-progress"></div>
       </div>
+      <p class="text-lg font-bold text-azul mt-6 text-center">Carregando suas conversas...</p>
+      <p class="text-sm text-cinza3 mt-2 text-center">Estamos buscando todos os seus chats</p>
     </div>
   </div>
 
   <div v-else-if="sortedChatrooms.length" class="pt-32 pb-24">
     <div
-      v-for="chatroom in sortedChatrooms"
+      v-for="(chatroom, index) in sortedChatrooms"
       :key="chatroom.id"
-      class="flex items-center px-6 py-5 cursor-pointer transition-all duration-200 hover:bg-gray-200"
+      class="relative"
     >
-      <img
-        :src="chatroom.recipient.foto"
-        alt="Foto do usuário"
-        class="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-2 border-white"
-        @click.stop="openUserProfile(chatroom.recipient.id)"
-      />
+      <div class="flex items-center px-6 py-5 cursor-pointer transition-all duration-200 hover:bg-gray-100">
+        <img
+          :src="chatroom.recipient.foto"
+          alt="Foto do usuário"
+          class="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border-2 border-white shadow-md"
+          @click.stop="openUserProfile(chatroom.recipient.id)"
+        />
 
-      <div class="ml-5 flex-1" @click="openChat(chatroom)">
-        <div class="flex items-center justify-between">
-          <p class="text-xl font-semibold text-gray-800">{{ chatroom.recipient.name }}</p>
-          <span v-if="chatroom.unread_count > 0" 
-                class="bg-laranja text-white text-xs font-bold px-2 py-1 rounded-full">
-            {{ chatroom.unread_count }}
-          </span>
+        <div class="ml-5 flex-1" @click="openChat(chatroom)">
+          <div class="flex items-center justify-between">
+            <p class="text-xl font-semibold text-gray-800">{{ chatroom.recipient.name }}</p>
+            <span v-if="chatroom.unread_count > 0" 
+                  class="bg-laranja text-white text-xs font-bold px-2 py-1 rounded-full">
+              {{ chatroom.unread_count }}
+            </span>
+          </div>
+          <p class="text-md text-gray-500">Sobre o item: {{ chatroom.item_name }}</p>
         </div>
-        <p class="text-md text-gray-500">Sobre o item: {{ chatroom.item_name }}</p>
       </div>
+      <div v-if="index < sortedChatrooms.length - 1" class="border-b border-gray-200 mx-6"></div>
     </div>
   </div>
 
@@ -278,5 +286,42 @@ onUnmounted(() => {
 
 .animate-pulse {
   animation: pulse 1.5s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-15px);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 1.5s infinite;
+}
+
+/* Estilos da bolinha de carregamento removidos */
+
+.loading-bar {
+  width: 200px;
+  height: 6px;
+  background-color: #e0e0e0;
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 12px;
+}
+
+.loading-bar-progress {
+  height: 100%;
+  width: 30%;
+  background-color: #1a237e;
+  border-radius: 3px;
+  animation: progress 1.5s ease-in-out infinite;
+}
+
+@keyframes progress {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
 }
 </style>
