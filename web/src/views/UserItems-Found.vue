@@ -1,23 +1,6 @@
 <template>
-  <div
-    class="fixed w-full top-0 h-[100px] bg-verde shadow-md rounded-b-xl flex items-center justify-between px-6 text-white z-10"
-  >    <router-link to="/user" class="inline-block">
-      <img
-        src="../assets/icons/arrow-left-white.svg"
-        alt="Voltar"
-        class="w-[35px] h-[35px] text-white transform transition duration-300 hover:scale-125"
-      />
-    </router-link>
-
-    <h1 class="text-2xl font-bold absolute left-1/2 transform -translate-x-1/2">Meus Itens</h1>
-    
-    <div class="flex items-center gap-4">
-      <button>
-        <router-link to="/about" class="no-underline text-white">
-          <Logo class="pr-4" sizeClass="text-2xl" />
-        </router-link>
-      </button>
-    </div>
+ <div class="fixed w-full top-0 z-10">
+    <HeaderUserItem />
   </div>
 
   <div class="pb-8 pt-24">
@@ -102,6 +85,7 @@ import { formatTime } from "@/utils/dateUtils";
 import MainMenu from "../components/Main-Menu.vue";
 import Logo from "../components/Logo.vue";
 import SubMenu from "../components/Sub-Menu-UserFound.vue";
+import HeaderUserItem from "../components/Header-UserItem.vue";
 import ItemCard from "../components/Item-Card.vue";
 import EmptyState from "../components/Empty-State.vue";
 import Alert from "../components/Alert.vue";
@@ -138,6 +122,8 @@ async function fetchCurrentUser() {
     currentUser.value = response.data;
   } catch (error) {
     console.error("Erro ao buscar usuário:", error);
+    alertMessage.value = "Erro ao buscar usuário.";
+    submitError.value = true;
   }
 }
 

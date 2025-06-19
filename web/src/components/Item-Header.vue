@@ -22,18 +22,18 @@
       v-if="userId === itemUserId && canEditUser"
       type="button"
       @click="editItem()"
-      class="flex items-center w-1/4 justify-end hover:scale-110 transition-transform duration-300"
+      class="flex items-center w-1/4 justify-end hover:scale-90 transition-transform duration-300 pr-4"
     >
       <img
         src="@/assets/icons/EditarPerfil.svg"
         alt="Editar Item"
-        class="w-[25px] h-[25px] text-white cursor-pointer"
+        class="w-[30px] h-[30px] text-white cursor-pointer"
       />
     </button>
 
     <div v-else class="flex items-center w-1/4 justify-end">
       <router-link to="/about" class="no-underline text-white">
-        <Logo class="pr-2 md:pr-4" sizeClass="text-xl md:text-2xl" />
+        <Logo class="transform translate-y-[1.25px] md:pr-4" sizeClass="text-xl md:text-2xl" />
       </router-link>
     </div>
   </div>
