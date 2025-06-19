@@ -47,6 +47,7 @@ urlpatterns = [
     path("api/chat/", include("chat.urls")),
     path("api/", include("users.urls")),
     path("api/", include("reports.urls")),
+    path("api/support/", include("support.urls", namespace="support")),
     path("delete-user/<int:user_id>/", DeleteUserView.as_view(), name="delete_user"),
     path(
         "swagger/",
