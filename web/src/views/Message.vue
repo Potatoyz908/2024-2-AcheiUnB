@@ -17,7 +17,22 @@
     />
 
     <div ref="messagesContainer" class="relative flex-1 pt-32 pb-24 px-4 overflow-y-auto z-10">
-      <div v-for="group in groupedMessages" :key="group.date" class="mb-4">
+      <!-- Indicador de carregamento com barra de progresso -->
+      <div v-if="isLoading" class="flex flex-col items-center justify-center h-full">
+        <img
+          src="@/assets/icons/Favicon.png"
+          alt="AcheiUnB"
+          class="w-16 h-16 mb-4 animate-pulse"
+        />
+        <div class="w-48 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+          <div class="loading-bar-progress bg-laranja h-full"></div>
+        </div>
+        <p class="mt-4 text-sm text-gray-600">Carregando mensagens...</p>
+      </div>
+      
+      <!-- Exibe as mensagens quando não estiver carregando -->
+      <template v-else>
+        <div v-for="group in groupedMessages" :key="group.date" class="mb-4">
         <!-- Data separator com estilo de balão WhatsApp -->
         <div class="flex justify-center mb-3">
           <div class="bg-gray-200 text-gray-600 text-xs font-medium px-4 py-1.5 rounded-full shadow-sm">
@@ -59,6 +74,7 @@
 
         </div>
       </div>
+      </template>
     </div>
     
     <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-2 sm:p-4 z-20">
@@ -128,6 +144,7 @@ const currentUser = ref(null);
 const item = ref(null);
 const receiverId = ref(null);
 const showEmojiPicker = ref(false);
+const isLoading = ref(true); // Adicionando estado de loading
 
 const emojis = [
   "😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣", "😊", "😇", 
@@ -249,10 +266,14 @@ const sendMessage = async () => {
       socket.value.emit("send_message", mensagemSalva);
     } else {
       console.warn("Socket.IO não está conectado. Mensagem salva no banco, mas não enviada em tempo real.");
+      // Como Socket.IO não está conectado, adicionamos a mensagem manualmente ao array
+      messages.value.push(mensagemSalva);
+      processMessages();
+      scrollToBottom();
     }
 
     messageContent.value = "";
-    await fetchMessages();
+    // Removida a chamada fetchMessages() pois agora usamos apenas WebSocket para atualização
 
   } catch (error) {
     console.error("Erro ao enviar mensagem:", error.response?.data || error.message);
@@ -262,6 +283,8 @@ const sendMessage = async () => {
 
 const fetchMessages = async () => {
   if (!chatroomId.value) return;
+  isLoading.value = true; // Ativa o estado de carregamento
+  
   try {
     const response = await api.get("/chat/messages/", {
       params: { room: chatroomId.value }
@@ -278,6 +301,8 @@ const fetchMessages = async () => {
     }, 100);
   } catch (error) {
     console.error("Erro ao buscar mensagens:", error);
+  } finally {
+    isLoading.value = false; // Finaliza o estado de carregamento independentemente do resultado
   }
 };
 
@@ -518,24 +543,8 @@ onMounted(async () => {
     scrollToBottom();
   }, 300);
   
-  // Configurar atualização periódica do status das mensagens (a cada 5 segundos)
-  // Isso serve como uma segurança caso o websocket não funcione
-  const intervalId = setInterval(() => {
-    if (messages.value.length > 0) {
-      // Verificamos se há mensagens que enviamos e que ainda não estão marcadas como lidas
-      const unreadSentMessages = messages.value.filter(
-        msg => msg.sender === currentUser.value?.id && !msg.is_read
-      );
-      
-      if (unreadSentMessages.length > 0) {
-        fetchMessages(); // Atualiza o status de leitura
-      }
-    }
-  }, 5000);
-  
-  // Limpeza
+  // Limpeza ao desmontar o componente
   return () => {
-    clearInterval(intervalId);
     if (socket.value) {
       socket.value.disconnect();
     }
@@ -543,4 +552,24 @@ onMounted(async () => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.animate-pulse {
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes progress {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+.loading-bar-progress {
+  animation: progress 1.8s ease-in-out infinite;
+  width: 50%;
+}
+</style>
