@@ -1,5 +1,5 @@
 <template>
-  <div class="relative flex flex-col h-screen bg-gray-100">
+  <div class="relative flex flex-col bg-gray-100" style="min-height: 100dvh; height: 100dvh;">
 
     <div class="flex absolute inset-0 justify-center items-center pointer-events-none z-0">
       <img
@@ -16,7 +16,7 @@
       class="fixed top-0 left-0 w-full z-20"
     />
 
-    <div ref="messagesContainer" class="relative flex-1 pt-32 pb-24 px-4 overflow-y-auto z-10">
+    <div ref="messagesContainer" class="relative flex-1 pt-32 pb-28 px-4 overflow-y-auto z-10">
       <!-- Indicador de carregamento com barra de progresso -->
       <div v-if="isLoading" class="flex flex-col items-center justify-center h-full">
         <img
@@ -77,9 +77,9 @@
       </template>
     </div>
     
-    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-2 sm:p-4 z-20">
+    <div class="fixed left-0 right-0 bg-white border-t border-gray-200 p-4 z-20 chat-bar-fix">
       <div class="relative">
-        <div v-if="showEmojiPicker" class="absolute bottom-full mb-2 bg-white p-2 rounded-lg shadow-lg border border-gray-300 z-30 max-h-64 overflow-y-auto">
+        <div v-if="showEmojiPicker" class="absolute bottom-full mb-2 bg-white p-2 rounded-lg shadow-lg border border-gray-300 z-30 max-h-64 overflow-y-auto emoji-picker-area">
           <div class="grid grid-cols-8 gap-1">
             <button 
               v-for="emoji in emojis" 
@@ -95,27 +95,29 @@
         <div class="flex items-center">
           <button
             @click="toggleEmojiPicker"
-            class="p-1 px-0.5 text-gray-500 hover:text-laranja focus:outline-none mr-1"
+            class="p-1 px-0.5 text-gray-500 hover:text-laranja focus:outline-none mr-1 emoji-picker-area"
             title="Inserir emoji"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 sm:w-5 sm:h-5">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M15.182 15.182a4.5 4.5 0 01-6.364 0M21 12a9 9 0 11-18 0 9 9 0 0118 0zM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75zm-.375 0h.008v.015h-.008V9.75zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75zm-.375 0h.008v.015h-.008V9.75z" />
             </svg>
           </button>
           
           <input
+            ref="inputRef"
             v-model="messageContent"
+            @focus="handleInputFocus"
             @keyup.enter="sendMessage"
             type="text"
             maxlength="80"
             placeholder="Digite uma mensagem..."
-            class="flex-1 border border-gray-300 rounded-full px-2 sm:px-4 py-2 text-sm sm:text-base focus:outline-none focus:border-laranja"
+            class="flex-1 border border-gray-300 rounded-full px-4 py-2 text-base focus:outline-none focus:border-laranja"
           />
           
           <button
             @click="sendMessage"
             :disabled="!messageContent.trim()"
-            class="ml-1 bg-laranja text-white p-2 sm:p-2.5 rounded-full hover:bg-laranja-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+            class="ml-1 bg-laranja text-white p-2.5 rounded-full hover:bg-laranja-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
             title="Enviar mensagem"
           >
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
@@ -130,7 +132,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, onBeforeUnmount, nextTick } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import api from "../services/api";
 import HeaderMessage from "@/components/Header-Message.vue";
@@ -258,6 +260,8 @@ const sendMessage = async () => {
     }
 
     messageContent.value = "";
+    await nextTick();
+    scrollToBottom();
     // Removida a chamada fetchMessages() pois agora usamos apenas WebSocket para atualização
 
   } catch (error) {
@@ -413,7 +417,9 @@ const messagesContainer = ref(null);
 const scrollToBottom = () => {
   const container = messagesContainer.value;
   if (container) {
-    container.scrollTop = container.scrollHeight;
+    nextTick(() => {
+      container.scrollTop = container.scrollHeight - container.clientHeight;
+    });
   }
 };
 
@@ -535,6 +541,7 @@ onMounted(async () => {
     }
   };
 });
+
 </script>
 
 <style scoped>
@@ -556,5 +563,17 @@ onMounted(async () => {
 .loading-bar-progress {
   animation: progress 1.8s ease-in-out infinite;
   width: 50%;
+}
+
+.chat-bar-fix {
+  bottom: 0;
+  height: max-content;
+  padding-bottom: 16px;
+}
+@media (max-width: 640px) {
+  .chat-bar-fix {
+    bottom: env(keyboard-inset-height, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0);
+  }
 }
 </style>
