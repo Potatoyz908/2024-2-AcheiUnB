@@ -1,6 +1,6 @@
 <template>
   <div class="fixed w-full top-0 z-[1]">
-    <ItemHeader :title="'Mensagens'" :canEditUser="false" />
+    <ItemHeader :title="'Conversas'" :canEditUser="false" />
   </div>
 
   <div v-if="loadingChats" class="pt-32 pb-24 flex flex-col items-center justify-center h-[60vh] relative">
