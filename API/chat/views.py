@@ -100,14 +100,9 @@ class ChatRoomViewSet(ModelViewSet):
         recipient = User.objects.get(id=participant_2_id)
         item = Item.objects.get(id=item_id)
 
-        # Nome do remetente (usuário atual)
         sender_name = sender.first_name or sender.last_name or sender.username
-
-        # Nome do destinatário
         recipient_name = recipient.first_name or recipient.last_name or recipient.username
-
-        # URL para o chat (front-end)
-        chat_url = f"https://acheiunb.com.br/chat/{chatroom_id}?userId={participant_2_id}&itemId={item_id}"
+        chat_url = f"https://acheiunb.com.br/#/chat/{chatroom_id}?userId={participant_2_id}&itemId={item_id}"
 
         # Enviar e-mail de notificação de forma assíncrona
         send_chat_notification_email.delay(
