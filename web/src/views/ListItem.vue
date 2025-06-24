@@ -362,6 +362,7 @@ const isMobile = ref(window.innerWidth < 768);
 const alertMessage = ref("");
 const submitError = ref(false);
 const submitSuccess = ref(false);
+const isSubmitting = ref(false);
 
 const isLoaded = ref(false);
 
@@ -459,6 +460,8 @@ const handleChat = async () => {
       return;
     }
 
+    isSubmitting.value = true;
+
     const searchParams = {
       participant_1: currentUser.value.id,
       participant_2: item.value.user_id,
@@ -492,6 +495,8 @@ const handleChat = async () => {
     console.error("Erro ao criar/aceder chat:", error.response?.data || error.message);
     alertMessage.value = "Erro ao criar chat.";
     submitError.value = true;
+  } finally {
+    isSubmitting.value = false;
   }
 };
 
