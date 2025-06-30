@@ -90,7 +90,7 @@
         @click="handleLogout"
         class="w-full flex justify-center"
       >
-        <span class="bg-red-600 text-white w-full md:w-[80%] lg:w-[70%] font-medium py-4 md:py-5 lg:py-6 rounded-full hover:scale-105 transition-transform duration-300 text-center text-lg md:text-xl lg:text-2xl shadow-lg border-2 border-laranja/20">
+        <span class="bg-red-600 text-white w-full md:w-[80%] lg:w-[70%] font-medium py-4 md:py-5 lg:py-6 rounded-full hover:scale-105 transition-transform duration-300 text-center text-lg md:text-xl lg:text-2xl shadow-lg border-2 border-laranja/20 mb-6">
           Sair da Conta
         </span>
       </button>

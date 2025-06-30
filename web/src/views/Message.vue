@@ -108,6 +108,7 @@
             v-model="messageContent"
             @focus="handleInputFocus"
             @keyup.enter="sendMessage"
+            :desabled="isSubmitting"
             type="text"
             maxlength="80"
             placeholder="Digite uma mensagem..."
@@ -147,6 +148,7 @@ const item = ref(null);
 const receiverId = ref(null);
 const showEmojiPicker = ref(false);
 const isLoading = ref(true); // Adicionando estado de loading
+const isSubmitting = ref(false);
 
 const emojis = [
   "😀", "😃", "😄", "😁", "😆", "😅", "😂", "🤣", "😊", "😇", 
@@ -235,6 +237,7 @@ const sendMessage = async () => {
     return;
   }
 
+  isSubmitting.value = true;
   const conteudo = messageContent.value.trim();
 
   try {
@@ -266,6 +269,8 @@ const sendMessage = async () => {
 
   } catch (error) {
     console.error("Erro ao enviar mensagem:", error.response?.data || error.message);
+  } finally {
+    isSubmitting.value = false;
   }
 };
 
