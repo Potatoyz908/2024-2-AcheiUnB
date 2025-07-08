@@ -69,7 +69,7 @@
 
     <div
       v-if="showFilters"
-      class="absolute left-0 bg-gray-200 shadow-lg rounded-xl p-4 z-30"
+      class="absolute left-0 bg-gray-200 shadow-lg rounded-xl p-4 z-30 overflow-y-auto max-h-[670px]"
       :class="{
         'w-fit mr-8': isActive && !isMediumOrLarger,
         'w-full': isMediumOrLarger,
@@ -79,12 +79,13 @@
       <div class="flex gap-2 flex-wrap mt-4">
         <span class="w-full text-azul text-2xl font-bold">Categoria </span>
         <button
+          type="button"
           v-for="(filter, index) in categories"
           :key="index"
-          @click="(toggleFilter('category', index), setActiveCategory(filter.label))"
+          @click="setActiveCategory(filter.label)"
           :class="[
             'px-4 py-2 rounded-full border text-sm',
-            filter.active
+            filtersState.activeCategory === filter.label
               ? 'bg-laranja text-azul border-black'
               : 'bg-gray-200 text-azul border-black',
           ]"
@@ -96,12 +97,13 @@
       <div class="flex gap-2 flex-wrap mt-4">
         <span class="w-full text-azul text-2xl font-bold">Local </span>
         <button
+          type="button"
           v-for="(filter, index) in locations"
           :key="index"
-          @click="(toggleFilter('location', index), setActiveLocation(filter.label))"
+          @click=" setActiveLocation(filter.label)"
           :class="[
             'px-4 py-2 rounded-full border text-sm',
-            filter.active
+            filtersState.activeLocation === filter.label
               ? 'bg-laranja text-azul border-black'
               : 'bg-gray-200 text-azul border-black',
           ]"
