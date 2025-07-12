@@ -1,25 +1,20 @@
 {
   "index.html": {
-    "file": "js/index-Dk79EvLK.js",
+    "file": "js/index-BKNERMjL.js",
     "name": "index",
     "src": "index.html",
     "isEntry": true,
     "css": [
-      "assets/index-DLB_KlK5.css"
+      "assets/index-Dp4vu6Pv.css"
     ],
     "assets": [
-      "assets/Favicon2-GhYJHopS.png",
-      "assets/default-avatar-BpcudYYH.png",
-      "assets/Favicon3-Dkcl5vQE.png"
+      "assets/Favicon-DZaE_dAz.png",
+      "assets/default-avatar-BpcudYYH.png"
     ]
   },
-  "src/assets/icons/Favicon2.png": {
-    "file": "assets/Favicon2-GhYJHopS.png",
-    "src": "src/assets/icons/Favicon2.png"
-  },
-  "src/assets/icons/Favicon3.png": {
-    "file": "assets/Favicon3-Dkcl5vQE.png",
-    "src": "src/assets/icons/Favicon3.png"
+  "src/assets/icons/Favicon.png": {
+    "file": "assets/Favicon-DZaE_dAz.png",
+    "src": "src/assets/icons/Favicon.png"
   },
   "src/assets/images/default-avatar.png": {
     "file": "assets/default-avatar-BpcudYYH.png",
