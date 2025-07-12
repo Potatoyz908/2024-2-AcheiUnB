@@ -16,6 +16,7 @@ import SessionExpired from "@/views/Session-Expired.vue";
 import api from "../services/api";
 import Anonimo from "@/views/Anonimo.vue";
 import EditItem from "../views/EditItem.vue";
+import BannedUser from "../views/BannedUser.vue";
 
 const routes = [
   {
@@ -123,6 +124,11 @@ const routes = [
     name: "Expired",
     component: SessionExpired,
   },
+  {
+    path: "/banned-user",
+    name: "Banned",
+    component: BannedUser,
+  }
 ];
 
 const router = createRouter({

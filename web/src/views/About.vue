@@ -70,7 +70,7 @@ import { ref } from "vue";
 import AboutHeader from "../components/Header-About.vue";
 import MainMenu from "../components/Main-Menu.vue";
 import Logo from "../components/Logo.vue";
-import backgroundImagePath from "@/assets/icons/Favicon.png";
+import backgroundImagePath from "@/assets/icons/Favicon2.png";
 
 const backgroundImage = ref(backgroundImagePath);
 

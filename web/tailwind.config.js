@@ -10,6 +10,7 @@ export default {
         cinza1: "#EAEAEA",
         cinza2: "#D9D9D9",
         cinza3: "#8899a8",
+        vermelho: "#f63b3b",
       },
       boxShadow: {
         complete: "0 0 3px 1px rgb(0 0 0 / 0.1);",

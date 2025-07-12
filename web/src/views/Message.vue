@@ -3,7 +3,7 @@
 
     <div class="flex absolute inset-0 justify-center items-center pointer-events-none z-0">
       <img
-        src="@/assets/icons/Favicon.png"
+        src="@/assets/icons/Favicon2.png"
         alt="Watermark"
         class="w-48 md:w-64 lg:w-80 opacity-20"
       />
