@@ -7,7 +7,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["achadoseperdidos.lappis.rocks", "acheiunb.com.br", "localhost", "127.0.0.1"]
+ALLOWED_HOSTS = [
+    "achadoseperdidos.lappis.rocks",
+    "acheiunb.com.br",
+    "localhost",
+    "127.0.0.1",
+]
 INSTALLED_APPS = [
     "jazzmin",
     "django.contrib.contenttypes",
@@ -17,6 +22,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django.contrib.sites",
+    "django_filters",
     "users",
     "rest_framework",
     "rest_framework.authtoken",
@@ -24,9 +30,11 @@ INSTALLED_APPS = [
     "django_extensions",
     "channels",
     "chat",
+    "reports",
     "corsheaders",
     "django_celery_beat",
     "drf_yasg",
+    "support",
 ]
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
@@ -153,7 +161,7 @@ LOGGING = {
         },
     },
 }
-LOGOUT_REDIRECT_URL = "https://localhost:8080/#/"  # Para desenvolvimento
-# LOGOUT_REDIRECT_URL = "https://achadoseperdidos.lappis.rocks/#/"  # Para produção
-LOGIN_REDIRECT_URL = "https://localhost:8080/#/lost"  # Para desenvolvimento
-# LOGIN_REDIRECT_URL = "https://achadoseperdidos.lappis.rocks/#/lost"  # Para produção
+# LOGOUT_REDIRECT_URL = "https://localhost:8080/#/"  # Para desenvolvimento
+LOGOUT_REDIRECT_URL = "https://acheiunb.com.br/#/"  # Para produção
+# LOGIN_REDIRECT_URL = "https://localhost:8080/#/lost"  # Para desenvolvimento
+LOGIN_REDIRECT_URL = "https://acheiunb.com.br/#/lost"  # Para produção

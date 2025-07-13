@@ -8,7 +8,9 @@ import requests
 from django.contrib.auth import get_user_model, login
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
+from django.utils.decorators import method_decorator
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
@@ -71,9 +73,16 @@ class UserListView(View):
             profile = getattr(user, "profile", None)
             profile_picture = profile.profile_picture if profile else None
 
+            first_name = user.first_name
+            last_name = user.last_name
+            if not first_name and last_name:
+                first_name = last_name
+                last_name = ""
+
             user_data = {
                 "id": user.id,
-                "first_name": user.first_name,
+                "first_name": first_name or user.username,
+                "last_name": last_name,
                 "email": user.email,
                 "foto": profile_picture,
             }
@@ -83,7 +92,10 @@ class UserListView(View):
         users_data = [
             {
                 "id": user.id,
-                "first_name": user.first_name,
+                "first_name": user.first_name
+                or (user.last_name if not user.first_name else "")
+                or user.username,
+                "last_name": "" if not user.first_name and user.last_name else user.last_name,
                 "email": user.email,
                 "foto": getattr(user.profile, "profile_picture", None),
             }
@@ -146,17 +158,21 @@ class ItemViewSet(ModelViewSet):
                 Item.objects.filter(status="found")
                 .select_related("category", "location", "color", "brand")
                 .prefetch_related("images")
+                .order_by("-created_at")
             )
         elif "lost" in self.request.path:
             return (
                 Item.objects.filter(status="lost")
                 .select_related("category", "location", "color", "brand")
                 .prefetch_related("images")
+                .order_by("-created_at")
             )
 
-        return Item.objects.select_related(
-            "category", "location", "color", "brand"
-        ).prefetch_related("images")
+        return (
+            Item.objects.select_related("category", "location", "color", "brand")
+            .prefetch_related("images")
+            .order_by("-created_at")
+        )
 
     def get_paginated_response(self, data):
         total_found = Item.objects.filter(status="found").count()
@@ -385,12 +401,19 @@ class UserDetailView(APIView):
 
         matricula = user.email.split("@")[0] if "@aluno.unb.br" in user.email else None
 
+        # Se não tem first_name e usa last_name como substituto, então limpa last_name
+        first_name = user.first_name
+        last_name = user.last_name
+        if not first_name and last_name:
+            first_name = last_name
+            last_name = ""
+
         user_data = {
             "id": user.id,
             "username": user.username,
             "email": user.email,
-            "first_name": user.first_name,
-            "last_name": user.last_name,
+            "first_name": first_name or user.username,
+            "last_name": last_name,
             "matricula": matricula,
             "foto": foto_url,
         }
@@ -425,7 +448,9 @@ def save_or_update_user(user_data, access_token=None):
             defaults={
                 "username": user_data.get("userPrincipalName").split("@")[0],
                 "first_name": user_data.get("givenName", ""),
-                "last_name": user_data.get("surname", ""),
+                "last_name": user_data.get(
+                    "surname", ""
+                ),  # Já garantimos que o campo last_name é usado corretamente
                 "password": "defaultpassword",
                 "last_login": datetime.now(),
                 "is_superuser": False,
@@ -607,5 +632,200 @@ class DeleteUserView(View):
                 {"message": f"Usuário com ID {user_id} foi deletado com sucesso."},
                 status=200,
             )
+        except User.DoesNotExist:
+            return JsonResponse({"error": "Usuário não encontrado."}, status=404)
+
+
+class LogoutView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    @method_decorator(csrf_exempt)
+    def post(self, request):
+        response = JsonResponse({"detail": "Logout realizado com sucesso."})
+        response.delete_cookie("access_token")
+        response.delete_cookie("refresh_token")
+        if hasattr(request, "session"):
+            request.session.flush()
+        return response
+
+
+class UserProfileView(APIView):
+    """
+    Endpoint para visualizar o perfil público de um usuário.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Retorna as informações do perfil público de um usuário",
+        responses={
+            200: openapi.Response(
+                "Perfil público do usuário",
+                openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "id": openapi.Schema(
+                            type=openapi.TYPE_INTEGER, description="ID do usuário"
+                        ),
+                        "username": openapi.Schema(
+                            type=openapi.TYPE_STRING, description="Nome de usuário"
+                        ),
+                        "first_name": openapi.Schema(
+                            type=openapi.TYPE_STRING, description="Nome"
+                        ),
+                        "last_name": openapi.Schema(
+                            type=openapi.TYPE_STRING, description="Sobrenome"
+                        ),
+                        "email": openapi.Schema(type=openapi.TYPE_STRING, description="Email"),
+                        "matricula": openapi.Schema(
+                            type=openapi.TYPE_STRING, description="Matrícula"
+                        ),
+                        "foto": openapi.Schema(
+                            type=openapi.TYPE_STRING, description="URL da foto de perfil"
+                        ),
+                        "is_active": openapi.Schema(
+                            type=openapi.TYPE_BOOLEAN, description="Status do usuário"
+                        ),
+                    },
+                ),
+            ),
+            404: "Usuário não encontrado",
+        },
+    )
+    def get(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+            profile = getattr(user, "profile", None)
+
+            # Verifica se o usuário solicitado está banido, caso afirmativo
+            # retorna informações limitadas
+            is_banned = profile.is_banned if profile else False
+            if is_banned and request.user.id != user_id:
+                # Se o usuário estiver banido e não for o próprio usuário logado
+                return JsonResponse(
+                    {
+                        "id": user.id,
+                        "username": "Usuário indisponível",
+                        "first_name": "",
+                        "last_name": "",
+                        "email": "",
+                        "foto": None,
+                        "is_active": False,
+                    },
+                    status=200,
+                )
+
+            # Retorna informações completas
+            return JsonResponse(
+                {
+                    "id": user.id,
+                    "username": user.username,
+                    "first_name": user.first_name
+                    or (user.last_name if not user.first_name else "")
+                    or user.username,
+                    "last_name": (
+                        "" if not user.first_name and user.last_name else user.last_name
+                    ),
+                    "email": (
+                        user.email if request.user.id == user_id else ""
+                    ),  # Só mostra email para o próprio usuário
+                    "matricula": user.username if "@" not in user.username else None,
+                    "foto": profile.profile_picture if profile else None,
+                    "is_active": user.is_active,
+                },
+                status=200,
+            )
+
+        except User.DoesNotExist:
+            return JsonResponse({"error": "Usuário não encontrado."}, status=404)
+
+
+class UserStatsView(APIView):
+    """
+    Endpoint para obter estatísticas de um usuário.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Retorna estatísticas de um usuário",
+        responses={
+            200: openapi.Response(
+                "Estatísticas do usuário",
+                openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "items_lost": openapi.Schema(
+                            type=openapi.TYPE_INTEGER, description="Número de itens perdidos"
+                        ),
+                        "items_found": openapi.Schema(
+                            type=openapi.TYPE_INTEGER,
+                            description="Número de itens encontrados",
+                        ),
+                    },
+                ),
+            ),
+            404: "Usuário não encontrado",
+        },
+    )
+    def get(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+
+            # Conta itens encontrados e perdidos do usuário
+            items_found = Item.objects.filter(user=user, status="found").count()
+            items_lost = Item.objects.filter(user=user, status="lost").count()
+
+            return JsonResponse(
+                {
+                    "items_found": items_found,
+                    "items_lost": items_lost,
+                },
+                status=200,
+            )
+
+        except User.DoesNotExist:
+            return JsonResponse({"error": "Usuário não encontrado."}, status=404)
+
+
+class UserRecentItemsView(APIView):
+    """
+    Endpoint para obter itens recentes de um usuário.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Retorna itens recentes de um usuário",
+        responses={
+            200: "Lista de itens recentes",
+            404: "Usuário não encontrado",
+        },
+    )
+    def get(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+
+            # Obtém os cinco itens mais recentes do usuário
+            recent_items = Item.objects.filter(user=user).order_by("-created_at")[:5]
+
+            items_data = []
+            for item in recent_items:
+                # Obter a primeira imagem do item (se houver)
+                images = ItemImage.objects.filter(item=item)
+                image_url = images[0].image_url if images.exists() else None
+
+                items_data.append(
+                    {
+                        "id": item.id,
+                        "title": item.name,
+                        "status": item.status,
+                        "created_at": item.created_at,
+                        "image": image_url,
+                    }
+                )
+
+            return JsonResponse(items_data, safe=False, status=200)
+
         except User.DoesNotExist:
             return JsonResponse({"error": "Usuário não encontrado."}, status=404)

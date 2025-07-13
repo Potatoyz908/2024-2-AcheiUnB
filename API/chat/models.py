@@ -35,6 +35,10 @@ class Message(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField()
     timestamp = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)  # Indica se a mensagem foi lida
+    notification_sent = models.BooleanField(
+        default=False
+    )  # Indica se uma notificação foi enviada para esta mensagem
 
     def __str__(self):
         return f"{self.sender.username}: {self.content[:50]}"

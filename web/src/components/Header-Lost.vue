@@ -10,14 +10,14 @@
         class="w-[35px] h-[35px] text-white transform transition duration-300 hover:scale-125"
       />
     </router-link>
-    <div>
+    <div class="flex-1 text-center">
       <span class="font-inter font-semibold text-lg sm:text-2xl">{{
         text ?? "Cadastro de item perdido"
       }}</span>
     </div>
     <button class="ml-auto">
       <router-link to="/about" class="no-underline text-white">
-        <Logo class="pr-4" sizeClass="text-xl sm:text-2xl" />
+        <Logo class="transform translate-y-[1.25px] pr-4" sizeClass="text-xl sm:text-2xl" />
       </router-link>
     </button>
   </div>

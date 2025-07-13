@@ -39,9 +39,11 @@ INSTALLED_APPS = [
     "django_extensions",
     "channels",
     "chat",
+    "reports",
     "corsheaders",
     "django_celery_beat",
     "drf_yasg",
+    "support",
 ]
 
 MIDDLEWARE = [
@@ -117,7 +119,7 @@ SOCIALACCOUNT_PROVIDERS = {
 MICROSOFT_REDIRECT_URI = "http://localhost:8000/accounts/microsoft/login/callback/"
 SOCIALACCOUNT_QUERY_EMAIL = True
 SOCIALACCOUNT_PROVIDERS["microsoft"]["AUTH_PARAMS"] = {
-    "domain": "alunos.unb.br",
+    "domain_hint": "unb.br",
 }
 SOCIALACCOUNT_PROVIDERS["microsoft"]["SCOPE"] = [
     "email",
@@ -157,6 +159,7 @@ EMAIL_USE_TLS = config("EMAIL_USE_TLS", cast=bool, default=True)
 EMAIL_HOST_USER = config("EMAIL_HOST_USER", default="acheiunb2024@gmail.com")
 EMAIL_HOST_PASSWORD = config("EMAIL_HOST_PASSWORD", default="")
 DEFAULT_FROM_EMAIL = config("DEFAULT_FROM_EMAIL", default=EMAIL_HOST_USER)
+SUPPORT_EMAIL = config("SUPPORT_EMAIL", default=EMAIL_HOST_USER)
 
 
 AUTH_PASSWORD_VALIDATORS = [

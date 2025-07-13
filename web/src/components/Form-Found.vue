@@ -175,6 +175,7 @@
           v-model="item.foundDate"
           type="date"
           name="foundDate"
+          :max="today"
         />
       </div>
 
@@ -243,14 +244,20 @@
           </div>
         </div>
       </div>
-      <div class="col-span-4">
+      <div class="col-span-4 flex justify-center mt-4">
         <button
           type="button"
           @click="save"
           :disabled="isSubmitting || formSubmitted"
-          class="inline-block text-center rounded-full bg-laranja px-5 py-3 text-md text-white w-full"
+          class="inline-block text-center rounded-full bg-laranja px-6 py-4 text-md font-bold text-white w-full md:w-1/2 lg:w-1/3 transition-all hover:bg-opacity-90 hover:scale-105 hover:shadow-lg shadow-md border-2 border-laranja border-opacity-80 disabled:opacity-50 disabled:cursor-not-allowed transform-gpu"
         >
-        {{ isSubmitting ? "Enviando..." : (editMode ? "Salvar Alterações" : "Enviar") }}
+          <span class="flex items-center justify-center">
+            <svg v-if="isSubmitting" class="animate-spin h-5 w-5 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="text-lg">{{ isSubmitting ? "Enviando..." : (editMode ? "Salvar Alterações" : "Enviar") }}</span>
+          </span>
         </button>
       </div>
     </div>
@@ -261,7 +268,7 @@
   <Alert
     v-if="formSubmitted"
     type="success"
-    message="Item publicado com sucesso"
+    :message="editMode ? 'Item editado com sucesso' : 'Item publicado com sucesso'"
     @closed="formSubmitted = false"
   />
 </template>
@@ -279,6 +286,7 @@ export default {
       item: new Item(),
       foundTime: "",
       foundDate: "",
+      today: new Date().toISOString().split("T")[0],
       previews: [],
       imagesToRemove: [],
       submitError: false,
@@ -1177,20 +1185,34 @@ export default {
   mounted() {
     if (this.editMode && this.existingItem) {
       this.item = Object.assign(new Item(), this.existingItem);
-
       this.previews.push(...this.existingItem.image_urls);
+
+      if (this.item.category) {
+        const cat = this.categories.find(c => c.category_id == this.item.category || c.id == this.item.category);
+        if (cat) this.searchCategory = cat.name;
+      }
+      if (this.item.location) {
+        const loc = this.locations.find(l => l.location_id == this.item.location || l.id == this.item.location);
+        if (loc) this.searchLocation = loc.name;
+      }
+      if (this.item.brand) {
+        const brand = this.brands.find(b => b.brand_id == this.item.brand || b.id == this.item.brand);
+        if (brand) this.searchBrand = brand.name;
+      }
+      if (this.item.color) {
+        const color = this.colors.find(c => c.color_id == this.item.color || c.id == this.item.color);
+        if (color) this.searchColor = color.name;
+      }
 
       if (this.item.found_lost_date) {
         try {
           const date = new Date(this.item.found_lost_date);
-
           this.item.foundDate =
             date.getFullYear() +
             "-" +
             String(date.getMonth() + 1).padStart(2, "0") +
             "-" +
             String(date.getDate()).padStart(2, "0");
-
           this.foundTime =
             String(date.getHours()).padStart(2, "0") +
             ":" +
@@ -1286,6 +1308,17 @@ export default {
       }
 
       if (this.item.foundDate) {
+        const selectedDate = new Date(this.item.foundDate);
+        const currentDate = new Date();
+        currentDate.setHours(0, 0, 0, 0);
+        
+        if (selectedDate > currentDate) {
+          this.alertMessage = "Ops! Não é possível selecionar uma data no futuro.";
+          this.submitError = true;
+          this.isSubmitting = false;
+          return;
+        }
+        
         const formattedFoundLostDate = this.formatFoundLostDate();
         form.setFieldValue("found_lost_date", formattedFoundLostDate);
       }
